@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Calculator, Target, Users, Smartphone, Download, TrendingUp } from "lucide-react";
@@ -46,7 +46,106 @@ const WeeklyPlanner = () => {
   const salesNum = parseInt(sales) || 0;
   const conversionRate = respondedNum > 0 ? ((salesNum / respondedNum) * 100).toFixed(1) : "0";
 
-  const handlePrint = () => window.print();
+  const pdfRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadPDF = async () => {
+    const html2pdf = (await import("html2pdf.js")).default;
+
+    // Build a clean PDF-only element
+    const el = document.createElement("div");
+    el.style.cssText = "width:700px;padding:40px;font-family:Helvetica,Arial,sans-serif;color:#1a1a1a;";
+
+    const h = (tag: string, text: string, style = "") => `<${tag} style="${style}">${text}</${tag}>`;
+    const hr = `<hr style="border:none;border-top:1px solid #ddd;margin:20px 0;">`;
+
+    // Header
+    let html = `
+      <div style="text-align:center;margin-bottom:24px;">
+        ${h("h1", "Secretos de Ventas | Mi Plan Semanal", "font-size:22px;color:#9b3fa0;margin:0 0 4px;")}
+        ${h("p", "Price Shoes", "font-size:12px;color:#888;margin:0;")}
+      </div>
+      ${hr}
+    `;
+
+    // Stats
+    html += `
+      <div style="display:flex;gap:16px;margin-bottom:24px;">
+        ${[
+          ["Meta de la semana", `$${goalNum.toLocaleString()}`],
+          ["Ventas necesarias", String(salesNeeded)],
+          ["Clientas a contactar", String(clientsNeeded)],
+          ["Clientas por día", String(clientsPerDay)],
+          ["Estados por semana", String(statusPerWeek)],
+        ].map(([label, val]) => `
+          <div style="flex:1;text-align:center;background:#f5f0f7;border-radius:8px;padding:12px 4px;">
+            <div style="font-size:20px;font-weight:bold;color:#9b3fa0;">${val}</div>
+            <div style="font-size:9px;color:#666;margin-top:4px;">${label}</div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+
+    // Weekly table
+    html += h("h2", "📅 Plan de la Semana", "font-size:16px;margin-bottom:12px;");
+    html += `<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:24px;">
+      <thead>
+        <tr style="background:#9b3fa0;color:#fff;">
+          <th style="padding:8px;text-align:left;">Día</th>
+          <th style="padding:8px;text-align:center;">Clientas</th>
+          <th style="padding:8px;text-align:left;">Nombres</th>
+          <th style="padding:8px;text-align:center;">Estrategia</th>
+          <th style="padding:8px;text-align:left;">Estado del día</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${weekData.map((d, i) => `
+          <tr style="border-bottom:1px solid #eee;${i % 2 ? "background:#faf8fc;" : ""}">
+            <td style="padding:8px;font-weight:bold;">${days[i]}</td>
+            <td style="padding:8px;text-align:center;">${d.clients}</td>
+            <td style="padding:8px;">${d.names || "—"}</td>
+            <td style="padding:8px;text-align:center;">${d.strategy}</td>
+            <td style="padding:8px;">${d.statusDay}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>`;
+
+    // Results section (blank for printing)
+    html += hr;
+    html += h("h2", "📊 Mi Resultado de la Semana", "font-size:16px;margin-bottom:12px;");
+    html += `
+      <div style="display:flex;gap:16px;margin-bottom:12px;">
+        <div style="flex:1;border:1px solid #ddd;border-radius:8px;padding:16px;">
+          <div style="font-size:10px;color:#888;margin-bottom:8px;">Clientas que respondieron</div>
+          <div style="border-bottom:1px solid #ccc;height:24px;"></div>
+        </div>
+        <div style="flex:1;border:1px solid #ddd;border-radius:8px;padding:16px;">
+          <div style="font-size:10px;color:#888;margin-bottom:8px;">Ventas cerradas</div>
+          <div style="border-bottom:1px solid #ccc;height:24px;"></div>
+        </div>
+        <div style="flex:1;border:1px solid #ddd;border-radius:8px;padding:16px;">
+          <div style="font-size:10px;color:#888;margin-bottom:8px;">Tasa de conversión</div>
+          <div style="border-bottom:1px solid #ccc;height:24px;"></div>
+        </div>
+      </div>
+    `;
+
+    // Footer
+    html += hr;
+    html += `<div style="text-align:center;font-size:10px;color:#aaa;margin-top:16px;">Secretos de Ventas — Price Shoes</div>`;
+
+    el.innerHTML = html;
+
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: "mi-plan-semanal.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "letter", orientation: "portrait" as const },
+    };
+
+    await html2pdf().set(opt).from(el).save();
+  };
 
   return (
     <div className="pt-20 pb-16 min-h-screen bg-muted/30">
@@ -200,7 +299,7 @@ const WeeklyPlanner = () => {
               )}
             </div>
 
-            <Button variant="gradient" className="w-full" onClick={handlePrint}>
+            <Button variant="gradient" className="w-full" onClick={handleDownloadPDF}>
               <Download className="w-4 h-4 mr-2" /> Descargar mi plan en PDF
             </Button>
           </div>
