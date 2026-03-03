@@ -1,12 +1,15 @@
-import { useState } from "react";
-import { ArrowLeft, Copy, Check, Play, Image as ImageIcon, Film, ChevronDown } from "lucide-react";
+import { useState, useCallback } from "react";
+import { ArrowLeft, Copy, Check, Play, Image as ImageIcon, Film, Sparkles, User, Search, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import WhatsAppChat, { WAMessage } from "@/components/WhatsAppChat";
-import { DayData, motivationalMessages } from "@/data/campaignData";
+import CommunityTips from "@/components/CommunityTips";
+import CelebrationOverlay from "@/components/CelebrationOverlay";
+import { DayData, celebrationMessages } from "@/data/campaignData";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,8 +17,11 @@ interface DayDetailProps {
   day: DayData;
   totalDays: number;
   completed: boolean;
+  campaignId: string;
+  campaignTitle: string;
   onBack: () => void;
   onComplete: () => void;
+  onNavigateNext: () => void;
 }
 
 const typeBadgeColors: Record<string, string> = {
@@ -25,9 +31,26 @@ const typeBadgeColors: Record<string, string> = {
   cierre: "bg-emerald-500/90 text-white border-0",
 };
 
-const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailProps) => {
+const getMotivationalMessage = (responsePct: number) => {
+  if (responsePct === 0) return "Normal para el primer intento 💪 El músculo se entrena — mañana responden más";
+  if (responsePct <= 20) return "Buen arranque 🔥 Con cada día que pasa tu tasa va a subir";
+  if (responsePct <= 50) return "Vas muy bien 🚀 Estás por encima del promedio";
+  return "Eres una máquina 🏆 Eso es lo que pasa cuando el mensaje es personal";
+};
+
+const DayDetail = ({ day, totalDays, completed, campaignId, campaignTitle, onBack, onComplete, onNavigateNext }: DayDetailProps) => {
   const { toast } = useToast();
   const [justCompleted, setJustCompleted] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [contacted, setContacted] = useState("");
+  const [responded, setResponded] = useState("");
+  const [sales, setSales] = useState("");
+
+  const contactedN = parseInt(contacted) || 0;
+  const respondedN = parseInt(responded) || 0;
+  const salesN = parseInt(sales) || 0;
+  const responsePct = contactedN > 0 ? Math.round((respondedN / contactedN) * 100) : 0;
+  const salesPct = contactedN > 0 ? Math.round((salesN / contactedN) * 100) : 0;
 
   const copyText = (text: string, label: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -37,19 +60,24 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
 
   const handleComplete = () => {
     onComplete();
-    setJustCompleted(true);
-    toast({
-      title: motivationalMessages[day.day - 1] || "¡Día completado! 🎉",
-      duration: 4000,
-    });
+    setShowCelebration(true);
   };
 
-  const followUpMessages = (fu: { label: string; timing: string; message: string }): WAMessage[] => [
-    { text: fu.message, sent: true, time: "10:30 a.m." },
-  ];
+  const handleCelebrationDone = useCallback(() => {
+    setShowCelebration(false);
+    setJustCompleted(true);
+    onNavigateNext();
+  }, [onNavigateNext]);
 
   return (
     <div className="pt-16 pb-24">
+      {showCelebration && (
+        <CelebrationOverlay
+          message={celebrationMessages[day.day - 1] || "¡Día completado! 🎉"}
+          onDone={handleCelebrationDone}
+        />
+      )}
+
       {/* Header */}
       <div
         className="px-4 py-6 text-white relative"
@@ -67,7 +95,7 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
       </div>
 
       <div className="px-4 max-w-2xl mx-auto space-y-6 mt-6">
-        {/* Sección 1 — Tu Misión de Hoy */}
+        {/* 1 — Tu Misión de Hoy */}
         <section
           className="rounded-2xl overflow-hidden shadow-sm p-5"
           style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.12), hsl(275 65% 50% / 0.12))" }}
@@ -77,7 +105,7 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
           <p className="text-sm text-foreground/90 leading-relaxed">{day.mission}</p>
         </section>
 
-        {/* Sección 2 — Tus Pasos de Hoy */}
+        {/* 2 — Tus Pasos de Hoy */}
         <section className="rounded-2xl border border-border overflow-hidden shadow-sm">
           <div className="p-4 border-b border-border bg-muted/30">
             <h2 className="font-display font-bold text-sm text-foreground">📋 Tus Pasos de Hoy</h2>
@@ -97,35 +125,86 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
           </div>
         </section>
 
-        {/* Sección 3 — Look del Día */}
+        {/* 3 — El Look del Día (enhanced) */}
         <section className="rounded-2xl border border-border overflow-hidden shadow-sm">
           <div className="p-4 border-b border-border bg-muted/30">
-            <h2 className="font-display font-bold text-sm text-foreground flex items-center gap-2">
-              👗 El Look del Día
-            </h2>
+            <h2 className="font-display font-bold text-sm text-foreground">👗 El Look del Día</h2>
           </div>
-          <div className="p-4 space-y-3">
+          <div className="p-4 space-y-4">
+            {/* Visual placeholder — NO price, NO brand on image */}
             <div
               className="rounded-xl aspect-[3/4] max-h-[280px] w-full flex flex-col items-center justify-center text-white relative overflow-hidden"
               style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.7), hsl(275 65% 50% / 0.7))" }}
             >
               <ImageIcon className="w-10 h-10 mb-2 opacity-60" />
               <p className="font-display font-bold text-sm text-center px-4">{day.lookName}</p>
-              <p className="text-xs opacity-80">{day.brand}</p>
             </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-display font-bold text-foreground">{day.lookName}</p>
-                <p className="text-sm text-primary font-bold">{day.lookPrice} — {day.brand}</p>
+            <div>
+              <p className="font-display font-bold text-foreground">{day.lookName}</p>
+              <p className="text-sm text-primary font-bold">{day.lookPrice} — {day.brand}</p>
+            </div>
+
+            {/* Atributos del producto */}
+            <div className="space-y-2">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Atributos del Producto</p>
+              <ul className="space-y-1.5">
+                {day.lookAttributes.map((attr, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                    <Sparkles className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                    <span>{attr}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* La clienta ideal */}
+            <div
+              className="rounded-xl p-4 space-y-3"
+              style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.06), hsl(275 65% 50% / 0.06))" }}
+            >
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">La Clienta Ideal</p>
+              <div className="space-y-2">
+                <div className="flex items-start gap-2">
+                  <User className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] text-muted-foreground font-bold uppercase">Quién es</p>
+                    <p className="text-sm text-foreground">{day.idealClient.quien}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Search className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] text-muted-foreground font-bold uppercase">Qué busca</p>
+                    <p className="text-sm text-foreground">{day.idealClient.queBusca}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] text-muted-foreground font-bold uppercase">Dónde la encuentras</p>
+                    <p className="text-sm text-foreground">{day.idealClient.donde}</p>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* Hacks de venta */}
+            <div className="space-y-2">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">🧠 Hacks de Venta</p>
+              {day.salesHacks.map((hack, i) => (
+                <div key={i} className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-sm text-foreground leading-relaxed">{hack}</p>
+                </div>
+              ))}
+            </div>
+
             <p className="text-xs text-muted-foreground italic">
               📌 Familiarízate con este look antes de empezar
             </p>
           </div>
         </section>
 
-        {/* Sección 4 — Estado de Hoy */}
+        {/* 4 — Estado de Hoy */}
         <section className="rounded-2xl border border-border overflow-hidden shadow-sm">
           <div className="p-4 border-b border-border bg-muted/30">
             <h2 className="font-display font-bold text-sm text-foreground">📱 Tu Estado de Hoy</h2>
@@ -139,7 +218,6 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
                 <Film className="w-3.5 h-3.5" /> Video
               </TabsTrigger>
             </TabsList>
-
             <TabsContent value="imagen" className="space-y-3">
               <div
                 className="rounded-xl aspect-[9/16] max-h-[300px] w-full flex flex-col items-center justify-center text-white relative overflow-hidden"
@@ -151,16 +229,10 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
               <div className="rounded-lg bg-muted/50 p-3">
                 <p className="text-sm text-foreground font-medium">"{day.statusCopyImage}"</p>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => copyText(day.statusCopyImage, "Copy del estado")}
-              >
+              <Button variant="outline" size="sm" className="w-full" onClick={() => copyText(day.statusCopyImage, "Copy del estado")}>
                 <Copy className="w-3.5 h-3.5 mr-1" /> Copiar copy ✓
               </Button>
             </TabsContent>
-
             <TabsContent value="video" className="space-y-3">
               <div
                 className="rounded-xl aspect-[9/16] max-h-[300px] w-full flex flex-col items-center justify-center text-white relative overflow-hidden"
@@ -179,19 +251,14 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
               <div className="rounded-lg bg-muted/50 p-3">
                 <p className="text-sm text-foreground font-medium">"{day.statusCopyVideo}"</p>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => copyText(day.statusCopyVideo, "Copy del video")}
-              >
+              <Button variant="outline" size="sm" className="w-full" onClick={() => copyText(day.statusCopyVideo, "Copy del video")}>
                 <Copy className="w-3.5 h-3.5 mr-1" /> Copiar copy ✓
               </Button>
             </TabsContent>
           </Tabs>
         </section>
 
-        {/* Sección 5 — Mensaje del Día */}
+        {/* 5 — Mensaje del Día */}
         <section className="rounded-2xl border border-border overflow-hidden shadow-sm">
           <div className="p-4 border-b border-border bg-muted/30">
             <h2 className="font-display font-bold text-sm text-foreground">💬 Tu Mensaje del Día</h2>
@@ -202,18 +269,13 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
               messages={[{ text: day.messageTemplate, sent: true, time: "10:30 a.m." }]}
               compact
             />
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={() => copyText(day.messageTemplate, "Mensaje")}
-            >
+            <Button variant="outline" size="sm" className="w-full" onClick={() => copyText(day.messageTemplate, "Mensaje")}>
               <Copy className="w-3.5 h-3.5 mr-1" /> Copiar mensaje ✓
             </Button>
           </div>
         </section>
 
-        {/* Sección 6 — Promo (días 3, 5, 7) */}
+        {/* 6 — Promo (días que aplica) */}
         {day.promo && (
           <section className="rounded-2xl border-2 border-amber-400/50 overflow-hidden shadow-md">
             <div
@@ -227,19 +289,14 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
               style={{ background: "linear-gradient(135deg, hsl(45 90% 55% / 0.08), hsl(35 90% 50% / 0.08))" }}
             >
               <p className="font-display font-bold text-lg text-foreground">{day.promo}</p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-amber-400/50"
-                onClick={() => copyText(day.promo!, "Promo")}
-              >
+              <Button variant="outline" size="sm" className="border-amber-400/50" onClick={() => copyText(day.promo!, "Promo")}>
                 <Copy className="w-3.5 h-3.5 mr-1" /> Copiar promo ✓
               </Button>
             </div>
           </section>
         )}
 
-        {/* Sección — Outfit Colaborativo (día 4) */}
+        {/* Outfit Colaborativo (día 4) */}
         {day.collabCopies && (
           <section className="rounded-2xl border border-border overflow-hidden shadow-sm">
             <div className="p-4 border-b border-border bg-muted/30">
@@ -251,10 +308,7 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
               </p>
               <div className="space-y-2">
                 {day.collabCopies.map((cc) => (
-                  <div
-                    key={cc.number}
-                    className="rounded-lg border border-border p-3 flex items-start gap-3"
-                  >
+                  <div key={cc.number} className="rounded-lg border border-border p-3 flex items-start gap-3">
                     <span
                       className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
                       style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
@@ -265,52 +319,74 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
                   </div>
                 ))}
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => {
-                  const all = day.collabCopies!.map((c) => `Estado ${c.number}: ${c.text}`).join("\n\n");
-                  copyText(all, "Todos los copies");
-                }}
-              >
+              <Button variant="outline" size="sm" className="w-full" onClick={() => {
+                const all = day.collabCopies!.map((c) => `Estado ${c.number}: ${c.text}`).join("\n\n");
+                copyText(all, "Todos los copies");
+              }}>
                 <Copy className="w-3.5 h-3.5 mr-1" /> Copiar todos los copies ✓
               </Button>
             </div>
           </section>
         )}
 
-        {/* Sección 7 — Secuencia de Seguimiento */}
+        {/* 7 — ¿Cómo arrancar según tu clienta? (replaces follow-up sequence) */}
         <section className="rounded-2xl border border-border overflow-hidden shadow-sm">
           <div className="p-4 border-b border-border bg-muted/30">
-            <h2 className="font-display font-bold text-sm text-foreground">🔄 Secuencia de Seguimiento</h2>
+            <h2 className="font-display font-bold text-sm text-foreground">🚀 ¿Cómo arrancar según tu clienta?</h2>
           </div>
-          <div className="p-4 space-y-4">
-            {day.followUps.map((fu, i) => (
-              <div key={i} className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-[10px]">{fu.label}</Badge>
-                  <span className="text-[11px] text-muted-foreground">— {fu.timing}</span>
+          <div className="p-4 space-y-3">
+            <p className="text-xs text-muted-foreground mb-3">
+              Elige según cuánto tiempo llevas sin hablar con ella
+            </p>
+
+            {/* Cold */}
+            <div className="rounded-xl border-2 border-red-300/50 p-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🔴</span>
+                <div>
+                  <p className="font-display font-bold text-sm text-foreground">Clienta fría</p>
+                  <p className="text-[10px] text-muted-foreground">Más de 60 días sin hablar</p>
                 </div>
-                <WhatsAppChat
-                  contactName="[Nombre]"
-                  messages={followUpMessages(fu)}
-                  compact
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => copyText(fu.message, fu.label)}
-                >
-                  <Copy className="w-3.5 h-3.5 mr-1" /> Copiar ✓
-                </Button>
               </div>
-            ))}
+              <WhatsAppChat contactName="[Nombre]" messages={[{ text: day.openingMessages.cold, sent: true, time: "10:30 a.m." }]} compact />
+              <Button variant="outline" size="sm" className="w-full" onClick={() => copyText(day.openingMessages.cold, "Mensaje clienta fría")}>
+                <Copy className="w-3.5 h-3.5 mr-1" /> Copiar ✓
+              </Button>
+            </div>
+
+            {/* Warm */}
+            <div className="rounded-xl border-2 border-yellow-300/50 p-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🟡</span>
+                <div>
+                  <p className="font-display font-bold text-sm text-foreground">Clienta tibia</p>
+                  <p className="text-[10px] text-muted-foreground">2 a 4 semanas sin hablar</p>
+                </div>
+              </div>
+              <WhatsAppChat contactName="[Nombre]" messages={[{ text: day.openingMessages.warm, sent: true, time: "10:30 a.m." }]} compact />
+              <Button variant="outline" size="sm" className="w-full" onClick={() => copyText(day.openingMessages.warm, "Mensaje clienta tibia")}>
+                <Copy className="w-3.5 h-3.5 mr-1" /> Copiar ✓
+              </Button>
+            </div>
+
+            {/* Hot */}
+            <div className="rounded-xl border-2 border-green-300/50 p-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🟢</span>
+                <div>
+                  <p className="font-display font-bold text-sm text-foreground">Clienta caliente</p>
+                  <p className="text-[10px] text-muted-foreground">Habló esta semana</p>
+                </div>
+              </div>
+              <WhatsAppChat contactName="[Nombre]" messages={[{ text: day.openingMessages.hot, sent: true, time: "10:30 a.m." }]} compact />
+              <Button variant="outline" size="sm" className="w-full" onClick={() => copyText(day.openingMessages.hot, "Mensaje clienta caliente")}>
+                <Copy className="w-3.5 h-3.5 mr-1" /> Copiar ✓
+              </Button>
+            </div>
           </div>
         </section>
 
-        {/* Sección 8 — Manejo de Objeciones */}
+        {/* 8 — Manejo de Objeciones */}
         <section className="rounded-2xl border border-border overflow-hidden shadow-sm">
           <div className="p-4 border-b border-border bg-muted/30">
             <h2 className="font-display font-bold text-sm text-foreground">💬 ¿Qué hago si me dice...?</h2>
@@ -328,12 +404,7 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
                       messages={[{ text: obj.response, sent: true, time: "10:30 a.m." }]}
                       compact
                     />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => copyText(obj.response, "Respuesta")}
-                    >
+                    <Button variant="outline" size="sm" className="w-full" onClick={() => copyText(obj.response, "Respuesta")}>
                       <Copy className="w-3.5 h-3.5 mr-1" /> Copiar ✓
                     </Button>
                   </AccordionContent>
@@ -343,7 +414,69 @@ const DayDetail = ({ day, totalDays, completed, onBack, onComplete }: DayDetailP
           </div>
         </section>
 
-        {/* Botón completar */}
+        {/* Community Tips */}
+        <CommunityTips dayNumber={day.day} campaign={campaignTitle} />
+
+        {/* Mini Tracker */}
+        <section className="rounded-2xl border border-border overflow-hidden shadow-sm">
+          <div className="p-4 border-b border-border bg-muted/30">
+            <h2 className="font-display font-bold text-sm text-foreground">📊 Tu Resultado de Hoy</h2>
+          </div>
+          <div className="p-4 space-y-4">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1">
+                <label className="text-[10px] text-muted-foreground font-bold uppercase">Contactadas</label>
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={contacted}
+                  onChange={(e) => setContacted(e.target.value)}
+                  className="text-center text-lg font-bold"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-muted-foreground font-bold uppercase">Respondieron</label>
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={responded}
+                  onChange={(e) => setResponded(e.target.value)}
+                  className="text-center text-lg font-bold"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-muted-foreground font-bold uppercase">Ventas</label>
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={sales}
+                  onChange={(e) => setSales(e.target.value)}
+                  className="text-center text-lg font-bold"
+                />
+              </div>
+            </div>
+
+            {contactedN > 0 && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Tasa de respuesta: <strong className="text-foreground">{responsePct}%</strong></span>
+                  <span>Tasa de cierre: <strong className="text-foreground">{salesPct}%</strong></span>
+                </div>
+                <div
+                  className="rounded-lg p-3 text-sm text-foreground font-medium text-center"
+                  style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.08), hsl(275 65% 50% / 0.08))" }}
+                >
+                  {getMotivationalMessage(responsePct)}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Complete button */}
         {!completed && !justCompleted ? (
           <Button
             variant="gradient"

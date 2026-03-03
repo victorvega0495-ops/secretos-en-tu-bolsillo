@@ -14,6 +14,12 @@ export interface Objection {
   response: string;
 }
 
+export interface IdealClient {
+  quien: string;
+  queBusca: string;
+  donde: string;
+}
+
 export interface DayData {
   day: number;
   emoji: string;
@@ -25,6 +31,14 @@ export interface DayData {
   lookName: string;
   lookPrice: string;
   brand: string;
+  lookAttributes: string[];
+  idealClient: IdealClient;
+  salesHacks: string[];
+  openingMessages: {
+    cold: string;
+    warm: string;
+    hot: string;
+  };
   statusCopyImage: string;
   statusCopyVideo: string;
   reelStructure: string[];
@@ -60,7 +74,26 @@ const semana1Days: DayData[] = [
     ],
     lookName: "Vestido Midi/Largo",
     lookPrice: "$499",
-    brand: "Holly Land",
+    brand: "Price Shoes",
+    lookAttributes: [
+      "Corte midi alarga la figura",
+      "Tela ligera ideal para clima cálido",
+      "Versátil — de día con sandalias, de noche con tacón",
+    ],
+    idealClient: {
+      quien: "Mujer de 25-45 años que quiere verse arreglada sin complicarse",
+      queBusca: "Una pieza que funcione para múltiples ocasiones",
+      donde: "Contactos de trabajo, amigas de la escuela, grupos de mamás",
+    },
+    salesHacks: [
+      "Muéstrale cómo el vestido va con tenis para el día y con tacón para la noche — dobla el valor percibido",
+      "Manda primero el mensaje sin foto — cuando diga sí manda la imagen. La curiosidad cierra más que el producto",
+    ],
+    openingMessages: {
+      cold: "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
+      warm: "Holaaa [Nombre], ¿cómo estás? Oye no me vas a creer — acabo de armar un look que quedó brutal y me acordé de ti. ¿Lo ves?",
+      hot: "Oye [Nombre], mira lo que acaba de llegar — de volada pensé en ti. ¿Te lo mando?",
+    },
     statusCopyImage: "Oye, ¿ya viste lo nuevo que llegó? 👀",
     statusCopyVideo: "Oye, ¿ya viste lo nuevo que llegó? 👀",
     reelStructure: [
@@ -99,7 +132,26 @@ const semana1Days: DayData[] = [
     ],
     lookName: "Pantalón Tiro Alto + Saco Con Solapa",
     lookPrice: "$529 + $699",
-    brand: "Holly Land",
+    brand: "Price Shoes",
+    lookAttributes: [
+      "Tiro alto estiliza la cintura",
+      "Saco con solapa da estructura sin verse rígido",
+      "Tela que no se arruga — perfecta para jornadas largas",
+    ],
+    idealClient: {
+      quien: "Mujer profesionista que trabaja en oficina o atiende clientes",
+      queBusca: "Verse formal y moderna sin invertir en traje completo",
+      donde: "Contactos de trabajo, LinkedIn, compañeras de oficina",
+    },
+    salesHacks: [
+      "Empieza vendiendo solo el pantalón — cuando le guste ofrece el saco como complemento. Ticket más alto sin que sienta que gasta más",
+      "Este look vende mejor jueves y viernes cuando ya piensan en verse bien el fin de semana",
+    ],
+    openingMessages: {
+      cold: "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
+      warm: "Holaaa [Nombre], ¿cómo estás? Oye no me vas a creer — acabo de armar un look que quedó brutal y me acordé de ti. ¿Lo ves?",
+      hot: "Oye [Nombre], mira lo que acaba de llegar — de volada pensé en ti. ¿Te lo mando?",
+    },
     statusCopyImage: "¿Cuál se llevan? 👀",
     statusCopyVideo: "¿Cuál se llevan? 👀",
     reelStructure: [
@@ -138,7 +190,26 @@ const semana1Days: DayData[] = [
     ],
     lookName: "Blusa Dama + Pantalón Cintura Regular",
     lookPrice: "$419 + $499",
-    brand: "Holly Land",
+    brand: "Price Shoes",
+    lookAttributes: [
+      "Blusa con caída elegante",
+      "Pantalón corte recto combina con todo",
+      "Combo básico que se puede vestir o casual",
+    ],
+    idealClient: {
+      quien: "Mujer que busca renovar su clóset sin gastar mucho",
+      queBusca: "Piezas básicas versátiles que combinen con lo que ya tiene",
+      donde: "Amigas, vecinas, grupos de WhatsApp de mamás",
+    },
+    salesHacks: [
+      "No menciones la promo en el primer mensaje. Primero genera interés, luego la promo es el cierre",
+      "Si duda del precio recuérdale que son 2 piezas — el costo por pieza baja mucho",
+    ],
+    openingMessages: {
+      cold: "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
+      warm: "Holaaa [Nombre], ¿cómo estás? Oye no me vas a creer — acabo de armar un look que quedó brutal y me acordé de ti. ¿Lo ves?",
+      hot: "Oye [Nombre], mira lo que acaba de llegar — de volada pensé en ti. ¿Te lo mando?",
+    },
     statusCopyImage: "Llévate las 2 piezas y ahorra 15% 🎁",
     statusCopyVideo: "Llévate las 2 piezas y ahorra 15% 🎁",
     reelStructure: [
@@ -178,7 +249,26 @@ const semana1Days: DayData[] = [
     ],
     lookName: "Chaleco Efecto Piel + Falda Short",
     lookPrice: "$559 + $449",
-    brand: "Holly Land",
+    brand: "Price Shoes",
+    lookAttributes: [
+      "Chaleco efecto piel es la pieza statement de la temporada",
+      "Falda short da frescura sin perder estilo",
+      "Look que destaca en cualquier red social",
+    ],
+    idealClient: {
+      quien: "Mujer joven que sigue tendencias y está activa en redes sociales",
+      queBusca: "Un look que se vea increíble en foto y en persona",
+      donde: "Instagram, TikTok, contactos menores de 35 años",
+    },
+    salesHacks: [
+      "El outfit colaborativo funciona mejor en la mañana — la gente está más activa y juguetona antes del mediodía",
+      "No respondas el resultado hasta las 6pm — genera suspenso todo el día",
+    ],
+    openingMessages: {
+      cold: "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
+      warm: "Holaaa [Nombre], ¿cómo estás? Oye no me vas a creer — acabo de armar un look que quedó brutal y me acordé de ti. ¿Lo ves?",
+      hot: "Oye [Nombre], mira lo que acaba de llegar — de volada pensé en ti. ¿Te lo mando?",
+    },
     statusCopyImage: "Tú armas el look, yo consigo las piezas 😊 Vamos...",
     statusCopyVideo: "Tú armas el look, yo consigo las piezas 😊 Vamos...",
     reelStructure: [
@@ -225,12 +315,31 @@ const semana1Days: DayData[] = [
     ],
     lookName: "Vestido Corto",
     lookPrice: "$589",
-    brand: "Holly Land",
+    brand: "Price Shoes",
+    lookAttributes: [
+      "Corte moderno con hombros definidos",
+      "Ideal para eventos casuales y reuniones",
+      "Una sola pieza hace el outfit completo",
+    ],
+    idealClient: {
+      quien: "Mujer que admira el estilo de influencers pero busca opciones accesibles",
+      queBusca: "Verse como sus referentes de moda sin pagar precios de lujo",
+      donde: "Seguidoras de cuentas de moda, grupos de tendencias",
+    },
+    salesHacks: [
+      "La comparación con celebridad funciona mejor con clientas de 20-35 años. Para clientas mayores usa el gancho del antes/después en su lugar",
+      "Si pregunta dónde consigues la ropa ese es tu momento — 'Trabajo con Price Shoes, tengo acceso a toda la colección nueva'",
+    ],
+    openingMessages: {
+      cold: "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
+      warm: "Holaaa [Nombre], ¿cómo estás? Oye no me vas a creer — acabo de armar un look que quedó brutal y me acordé de ti. ¿Lo ves?",
+      hot: "Oye [Nombre], mira lo que acaba de llegar — de volada pensé en ti. ¿Te lo mando?",
+    },
     statusCopyImage: "Kenia Os vs tú con $589 👀",
     statusCopyVideo: "Kenia Os vs tú con $589 👀",
     reelStructure: [
       "0-3 seg: foto celebridad",
-      "3-6 seg: look Holly Land",
+      "3-6 seg: look Price Shoes",
       "6-9 seg: $589 en pantalla",
       "9-12 seg: \"Escríbeme\"",
       "12-15 seg: cierre con nombre de socia",
@@ -265,7 +374,26 @@ const semana1Days: DayData[] = [
     ],
     lookName: "Chaleco Dama + Pantalón Pierna Ancha",
     lookPrice: "$629 + $539",
-    brand: "Holly Land",
+    brand: "Price Shoes",
+    lookAttributes: [
+      "Chaleco formal eleva cualquier look básico",
+      "Pantalón pierna ancha es tendencia Pri-Ver 2026",
+      "Combo de alto impacto visual",
+    ],
+    idealClient: {
+      quien: "Mujer ejecutiva o emprendedora que cuida su imagen profesional",
+      queBusca: "Proyectar autoridad y estilo al mismo tiempo",
+      donde: "Redes profesionales, eventos de negocios, cámaras de comercio",
+    },
+    salesHacks: [
+      "El testimonial funciona mejor si la clienta de la foto se parece a quien le estás escribiendo — misma edad, mismo estilo aproximado",
+      "No digas que llevas días intentando contactarla — actúa como si fuera la primera vez",
+    ],
+    openingMessages: {
+      cold: "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
+      warm: "Holaaa [Nombre], ¿cómo estás? Oye no me vas a creer — acabo de armar un look que quedó brutal y me acordé de ti. ¿Lo ves?",
+      hot: "Oye [Nombre], mira lo que acaba de llegar — de volada pensé en ti. ¿Te lo mando?",
+    },
     statusCopyImage: "Así lució hoy 😍",
     statusCopyVideo: "Así lució hoy 😍",
     reelStructure: [
@@ -304,7 +432,26 @@ const semana1Days: DayData[] = [
     ],
     lookName: "Saco Largo Str + Vestido Corto",
     lookPrice: "$609 + $799",
-    brand: "Holly Land",
+    brand: "Price Shoes",
+    lookAttributes: [
+      "Saco largo es la pieza más versátil de la colección",
+      "Vestido corto debajo crea capas con personalidad",
+      "Look de cierre de semana con actitud",
+    ],
+    idealClient: {
+      quien: "Clienta que ya mostró interés esta semana pero no ha comprado",
+      queBusca: "El empujón final para decidirse",
+      donde: "Tu lista de seguimiento de los días anteriores",
+    },
+    salesHacks: [
+      "Manda el mensaje de cierre antes de las 11am — después del mediodía la gente ya está en modo fin de semana y decide menos",
+      "A quien compre hoy pídele foto con la prenda — es tu testimonial para la próxima campaña",
+    ],
+    openingMessages: {
+      cold: "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
+      warm: "Holaaa [Nombre], ¿cómo estás? Oye no me vas a creer — acabo de armar un look que quedó brutal y me acordé de ti. ¿Lo ves?",
+      hot: "Oye [Nombre], mira lo que acaba de llegar — de volada pensé en ti. ¿Te lo mando?",
+    },
     statusCopyImage: "Últimas piezas de la semana 🔥",
     statusCopyVideo: "Últimas piezas de la semana 🔥",
     reelStructure: [
@@ -334,7 +481,7 @@ export const campaigns: Campaign[] = [
   {
     id: "semana-1-vestir",
     title: "Semana 1 — Vestir",
-    subtitle: "Holly Land Pri-Ver 2026",
+    subtitle: "Price Shoes Pri-Ver 2026",
     active: true,
     days: semana1Days,
   },
@@ -347,12 +494,14 @@ export const campaigns: Campaign[] = [
   },
 ];
 
-export const motivationalMessages: string[] = [
-  "¡Arrancaste con todo! 🔥 El primer paso es el más importante.",
-  "¡Día 2 listo! 💪 Ya llevas el ritmo, sigue así.",
-  "¡Mitad de semana superada! 🎯 Tu constancia es tu superpoder.",
-  "¡Día 4 completado! 👥 Estás construyendo relaciones reales.",
-  "¡Ya casi llegas! 🚀 Solo faltan 2 días más.",
-  "¡Penúltimo día! 🔄 Tu seguimiento marca la diferencia.",
-  "🏆 ¡SEMANA COMPLETADA! Eres una máquina de ventas. ¡A por la siguiente!",
+export const celebrationMessages: string[] = [
+  "¡Arrancaste! 🔥 Sembraste hoy, cosechas mañana.",
+  "¡Dos días seguidos! 💪 Las ventas están a punto de llegar.",
+  "¡Primera promo activada! 🎁 Hoy cerraste o estás muy cerca.",
+  "¡Sembraste en territorio nuevo! 👥 Las clientas nuevas de hoy son las VIP de mañana.",
+  "¡5 días! 🚀 Estás en la recta final.",
+  "¡Casi! 🔄 Un día más y tienes tu primera semana completa.",
+  "¡Semana completa! 🏆 Eres de las que terminan lo que empiezan.",
 ];
+
+export const motivationalMessages: string[] = celebrationMessages;

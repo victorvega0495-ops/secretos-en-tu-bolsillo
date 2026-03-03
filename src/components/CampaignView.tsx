@@ -1,4 +1,4 @@
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, Flame } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -27,9 +27,27 @@ const getBadgeMessage = (done: number, total: number) => {
   return "🏆 ¡Completada!";
 };
 
+const getStreak = (completedDays: number[]): number => {
+  if (completedDays.length === 0) return 0;
+  const sorted = [...completedDays].sort((a, b) => a - b);
+  let streak = 0;
+  // Count consecutive from the latest completed day backwards
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    if (i === sorted.length - 1) {
+      streak = 1;
+    } else if (sorted[i] === sorted[i + 1] - 1) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  return streak;
+};
+
 const CampaignView = ({ campaign, completedDays, onBack, onDayClick }: CampaignViewProps) => {
   const done = completedDays.length;
   const total = campaign.days.length;
+  const streak = getStreak(completedDays);
 
   return (
     <div className="pt-16 pb-16">
@@ -44,9 +62,16 @@ const CampaignView = ({ campaign, completedDays, onBack, onDayClick }: CampaignV
         <h1 className="font-display text-xl md:text-2xl font-bold">{campaign.title}</h1>
         <p className="text-sm text-white/80 mt-1">{campaign.subtitle}</p>
         <div className="max-w-xs mx-auto mt-4 space-y-2">
-          <p className="text-xs text-white/70">
-            {done} de {total} días completados
-          </p>
+          <div className="flex items-center justify-center gap-3">
+            <p className="text-xs text-white/70">
+              {done} de {total} días completados
+            </p>
+            {streak > 0 && (
+              <span className="inline-flex items-center gap-1 text-xs font-bold bg-white/20 rounded-full px-2.5 py-0.5">
+                🔥 {streak} día{streak > 1 ? "s" : ""} seguido{streak > 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
           <Progress value={(done / total) * 100} className="h-2 bg-white/20" />
           <Badge className="bg-white/20 text-white border-0 text-xs mt-2">
             {getBadgeMessage(done, total)}
