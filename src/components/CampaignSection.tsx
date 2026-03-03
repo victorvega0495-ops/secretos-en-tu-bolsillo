@@ -43,6 +43,16 @@ const CampaignSection = () => {
     });
   };
 
+  const handleNavigateNext = useCallback(() => {
+    if (!campaign) return;
+    if (activeDay < campaign.days.length) {
+      setActiveDay(activeDay + 1);
+    } else {
+      // Day 7 — back to campaign screen
+      setView("campaign");
+    }
+  }, [campaign, activeDay]);
+
   if (view === "day" && campaign) {
     const dayData = campaign.days.find((d) => d.day === activeDay);
     if (dayData) {
@@ -51,8 +61,11 @@ const CampaignSection = () => {
           day={dayData}
           totalDays={campaign.days.length}
           completed={getCompleted(campaign.id).includes(activeDay)}
+          campaignId={campaign.id}
+          campaignTitle={campaign.title}
           onBack={() => setView("campaign")}
           onComplete={() => completeDay(campaign.id, activeDay)}
+          onNavigateNext={handleNavigateNext}
         />
       );
     }
