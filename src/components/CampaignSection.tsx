@@ -24,6 +24,7 @@ const CampaignSection = () => {
   const [view, setView] = useState<View>("list");
   const [activeCampaignId, setActiveCampaignId] = useState<string>("");
   const [activeDay, setActiveDay] = useState<number>(1);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [progress, setProgress] = useState<Record<string, number[]>>(loadProgress);
 
   useEffect(() => { saveProgress(progress); }, [progress]);
@@ -63,6 +64,7 @@ const CampaignSection = () => {
           completed={getCompleted(campaign.id).includes(activeDay)}
           campaignId={campaign.id}
           campaignTitle={campaign.title}
+          isAdmin={isAdmin}
           onBack={() => setView("campaign")}
           onComplete={() => completeDay(campaign.id, activeDay)}
           onNavigateNext={handleNavigateNext}
@@ -76,6 +78,8 @@ const CampaignSection = () => {
       <CampaignView
         campaign={campaign}
         completedDays={getCompleted(campaign.id)}
+        isAdmin={isAdmin}
+        onAdminToggle={setIsAdmin}
         onBack={() => setView("list")}
         onDayClick={(d) => {
           setActiveDay(d);

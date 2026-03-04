@@ -21,6 +21,7 @@ interface DayDetailProps {
   completed: boolean;
   campaignId: string;
   campaignTitle: string;
+  isAdmin?: boolean;
   onBack: () => void;
   onComplete: () => void;
   onNavigateNext: () => void;
@@ -40,7 +41,7 @@ const getMotivationalMessage = (responsePct: number) => {
   return "Eres una máquina 🏆 Eso es lo que pasa cuando el mensaje es personal";
 };
 
-const DayDetail = ({ day, totalDays, completed, campaignId, campaignTitle, onBack, onComplete, onNavigateNext }: DayDetailProps) => {
+const DayDetail = ({ day, totalDays, completed, campaignId, campaignTitle, isAdmin, onBack, onComplete, onNavigateNext }: DayDetailProps) => {
   const { toast } = useToast();
   const [justCompleted, setJustCompleted] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -214,6 +215,7 @@ const DayDetail = ({ day, totalDays, completed, campaignId, campaignTitle, onBac
           reelStructure={day.reelStructure}
           campaign={campaignId}
           dayNumber={day.day}
+          isAdmin={isAdmin}
         />
 
 
