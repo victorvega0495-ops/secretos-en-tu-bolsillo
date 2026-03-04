@@ -13,6 +13,7 @@ interface StatusUploaderProps {
   reelStructure: string[];
   campaign: string;
   dayNumber: number;
+  isAdmin?: boolean;
 }
 
 type VideoSlot = "video_1" | "video_2";
@@ -26,8 +27,8 @@ const extractYouTubeId = (url: string): string | null => {
 };
 
 /* ── Image upload slot (local only) ── */
-const ImageSlot = ({ label, file, onFile, onRemove }: {
-  label: string; file: string | null;
+const ImageSlot = ({ label, file, isAdmin, onFile, onRemove }: {
+  label: string; file: string | null; isAdmin?: boolean;
   onFile: (f: File) => void; onRemove: () => void;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -48,19 +49,28 @@ const ImageSlot = ({ label, file, onFile, onRemove }: {
     <div className="flex-1 min-w-0">
       <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wide mb-1.5 text-center">{label}</p>
       {!file ? (
-        <button
-          onClick={() => inputRef.current?.click()}
-          className="w-full aspect-[9/16] max-h-[220px] rounded-xl border-2 border-dashed border-border hover:border-primary/50 transition-colors flex flex-col items-center justify-center gap-2 bg-muted/20"
-        >
-          <Upload className="w-6 h-6 text-muted-foreground" />
-          <span className="text-[10px] text-muted-foreground">Toca para subir</span>
-        </button>
+        isAdmin ? (
+          <button
+            onClick={() => inputRef.current?.click()}
+            className="w-full aspect-[9/16] max-h-[220px] rounded-xl border-2 border-dashed border-border hover:border-primary/50 transition-colors flex flex-col items-center justify-center gap-2 bg-muted/20"
+          >
+            <Upload className="w-6 h-6 text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground">Toca para subir</span>
+          </button>
+        ) : (
+          <div className="w-full aspect-[9/16] max-h-[220px] rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 bg-muted/20">
+            <ImageIcon className="w-6 h-6 text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground">Sin imagen</span>
+          </div>
+        )
       ) : (
         <div className="relative w-full aspect-[9/16] max-h-[220px] rounded-xl overflow-hidden">
           <img src={file} alt={label} className="w-full h-full object-cover" />
-          <button onClick={onRemove} className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80">
-            <X className="w-3.5 h-3.5" />
-          </button>
+          {isAdmin && (
+            <button onClick={onRemove} className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       )}
       <input ref={inputRef} type="file" accept=".jpg,.jpeg,.png" className="hidden" onChange={handleChange} />
@@ -69,8 +79,8 @@ const ImageSlot = ({ label, file, onFile, onRemove }: {
 };
 
 /* ── YouTube embed slot ── */
-const YouTubeSlot = ({ label, youtubeUrl, onSave }: {
-  label: string; youtubeUrl: string | null; onSave: (url: string) => void;
+const YouTubeSlot = ({ label, youtubeUrl, isAdmin, onSave }: {
+  label: string; youtubeUrl: string | null; isAdmin?: boolean; onSave: (url: string) => void;
 }) => {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -100,14 +110,16 @@ const YouTubeSlot = ({ label, youtubeUrl, onSave }: {
             allowFullScreen
             title={label}
           />
-          <button
-            onClick={() => { setDraft(youtubeUrl || ""); setEditing(true); }}
-            className="absolute bottom-1.5 right-1.5 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
-          >
-            <Pencil className="w-3.5 h-3.5" />
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => { setDraft(youtubeUrl || ""); setEditing(true); }}
+              className="absolute bottom-1.5 right-1.5 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
-      ) : (
+      ) : isAdmin ? (
         <button
           onClick={() => setEditing(true)}
           className="w-full aspect-[9/16] max-h-[220px] rounded-xl border-2 border-dashed border-border hover:border-primary/50 transition-colors flex flex-col items-center justify-center gap-2 bg-muted/20"
@@ -115,6 +127,11 @@ const YouTubeSlot = ({ label, youtubeUrl, onSave }: {
           <Youtube className="w-8 h-8 text-muted-foreground" />
           <span className="text-[10px] text-muted-foreground text-center px-2">Pega el link de YouTube aquí</span>
         </button>
+      ) : (
+        <div className="w-full aspect-[9/16] max-h-[220px] rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 bg-muted/20">
+          <Youtube className="w-8 h-8 text-muted-foreground" />
+          <span className="text-[10px] text-muted-foreground text-center px-2">Sin video</span>
+        </div>
       )}
 
       {editing && (
@@ -136,7 +153,7 @@ const YouTubeSlot = ({ label, youtubeUrl, onSave }: {
 };
 
 /* ── Main component ── */
-const StatusUploader = ({ lookName, statusCopyImage, statusCopyVideo, reelStructure, campaign, dayNumber }: StatusUploaderProps) => {
+const StatusUploader = ({ lookName, statusCopyImage, statusCopyVideo, reelStructure, campaign, dayNumber, isAdmin }: StatusUploaderProps) => {
   const { toast } = useToast();
 
   // Local image state
@@ -195,8 +212,8 @@ const StatusUploader = ({ lookName, statusCopyImage, statusCopyVideo, reelStruct
 
         <TabsContent value="imagen" className="space-y-3">
           <div className="flex gap-3">
-            <ImageSlot label="Imagen 1" file={images.imagen_1} onFile={(f) => handleImageFile("imagen_1", f)} onRemove={() => setImages((p) => ({ ...p, imagen_1: null }))} />
-            <ImageSlot label="Imagen 2" file={images.imagen_2} onFile={(f) => handleImageFile("imagen_2", f)} onRemove={() => setImages((p) => ({ ...p, imagen_2: null }))} />
+            <ImageSlot label="Imagen 1" file={images.imagen_1} isAdmin={isAdmin} onFile={(f) => handleImageFile("imagen_1", f)} onRemove={() => setImages((p) => ({ ...p, imagen_1: null }))} />
+            <ImageSlot label="Imagen 2" file={images.imagen_2} isAdmin={isAdmin} onFile={(f) => handleImageFile("imagen_2", f)} onRemove={() => setImages((p) => ({ ...p, imagen_2: null }))} />
           </div>
           <div className="rounded-lg bg-muted/50 p-3">
             <p className="text-sm text-foreground font-medium">"{statusCopyImage}"</p>
@@ -208,8 +225,8 @@ const StatusUploader = ({ lookName, statusCopyImage, statusCopyVideo, reelStruct
 
         <TabsContent value="video" className="space-y-3">
           <div className="flex gap-3">
-            <YouTubeSlot label="Video 1" youtubeUrl={videos.video_1} onSave={(url) => saveYouTubeUrl("video_1", url)} />
-            <YouTubeSlot label="Video 2" youtubeUrl={videos.video_2} onSave={(url) => saveYouTubeUrl("video_2", url)} />
+            <YouTubeSlot label="Video 1" youtubeUrl={videos.video_1} isAdmin={isAdmin} onSave={(url) => saveYouTubeUrl("video_1", url)} />
+            <YouTubeSlot label="Video 2" youtubeUrl={videos.video_2} isAdmin={isAdmin} onSave={(url) => saveYouTubeUrl("video_2", url)} />
           </div>
           <div className="space-y-1.5 rounded-lg bg-muted/50 p-3">
             {reelStructure.map((line, i) => (

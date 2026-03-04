@@ -1,13 +1,18 @@
-import { ArrowLeft, Check, Flame } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Check, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Campaign } from "@/data/campaignData";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface CampaignViewProps {
   campaign: Campaign;
   completedDays: number[];
+  isAdmin: boolean;
+  onAdminToggle: (v: boolean) => void;
   onBack: () => void;
   onDayClick: (day: number) => void;
 }
@@ -44,10 +49,27 @@ const getStreak = (completedDays: number[]): number => {
   return streak;
 };
 
-const CampaignView = ({ campaign, completedDays, onBack, onDayClick }: CampaignViewProps) => {
+const ADMIN_PASSWORD = "priceshoes2026";
+
+const CampaignView = ({ campaign, completedDays, isAdmin, onAdminToggle, onBack, onDayClick }: CampaignViewProps) => {
+  const { toast } = useToast();
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const [password, setPassword] = useState("");
   const done = completedDays.length;
   const total = campaign.days.length;
   const streak = getStreak(completedDays);
+
+  const handlePasswordSubmit = () => {
+    if (password === ADMIN_PASSWORD) {
+      onAdminToggle(true);
+      setShowPasswordPrompt(false);
+      setPassword("");
+      toast({ title: "Modo admin activado ✏️", duration: 2000 });
+    } else {
+      toast({ title: "Contraseña incorrecta", variant: "destructive", duration: 2000 });
+      setPassword("");
+    }
+  };
 
   return (
     <div className="pt-16 pb-16">
@@ -72,7 +94,37 @@ const CampaignView = ({ campaign, completedDays, onBack, onDayClick }: CampaignV
               </span>
             )}
           </div>
-          <Progress value={(done / total) * 100} className="h-2 bg-white/20" />
+          <div className="relative">
+            <Progress value={(done / total) * 100} className="h-2 bg-white/20" />
+            <button
+              onClick={() => {
+                if (isAdmin) {
+                  onAdminToggle(false);
+                  toast({ title: "Modo admin desactivado", duration: 2000 });
+                } else {
+                  setShowPasswordPrompt((v) => !v);
+                }
+              }}
+              className="absolute -bottom-5 right-0 text-white/40 hover:text-white/70 transition-colors"
+              title={isAdmin ? "Desactivar admin" : "Admin"}
+            >
+              <Lock className={cn("w-3.5 h-3.5", isAdmin && "text-yellow-300")} />
+            </button>
+          </div>
+          {showPasswordPrompt && (
+            <div className="flex gap-1.5 mt-3">
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handlePasswordSubmit()}
+                placeholder="Contraseña"
+                className="h-7 text-xs bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                autoFocus
+              />
+              <Button size="sm" className="h-7 px-3 text-xs bg-white/20 hover:bg-white/30 text-white" onClick={handlePasswordSubmit}>OK</Button>
+            </div>
+          )}
           <Badge className="bg-white/20 text-white border-0 text-xs mt-2">
             {getBadgeMessage(done, total)}
           </Badge>
