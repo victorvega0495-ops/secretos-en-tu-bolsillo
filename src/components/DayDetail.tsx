@@ -149,10 +149,10 @@ const DayDetail = ({ day, totalDays, completed, campaignId, campaignTitle, isAdm
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="text-center space-y-1 max-w-md mx-auto">
-          <p className="text-xs text-white/70">Día {day.day} de {totalDays}</p>
+          <p className="text-lg text-white/70">Día {day.day} de {totalDays}</p>
           <Progress value={(day.day / totalDays) * 100} className="h-1.5 bg-white/20 max-w-[200px] mx-auto" />
-          <h1 className="font-display text-lg font-bold mt-2">{day.emoji} {day.focus}</h1>
-          <Badge className={cn("text-[10px]", typeBadgeColors[day.type])}>{day.typeLabel}</Badge>
+          <h1 className="font-display text-[32px] font-bold mt-2 leading-tight">{day.emoji} {day.focus}</h1>
+          <Badge className={cn("text-sm px-3 py-1", typeBadgeColors[day.type])}>{day.typeLabel}</Badge>
         </div>
       </div>
 
@@ -290,9 +290,6 @@ const DayDetail = ({ day, totalDays, completed, campaignId, campaignTitle, isAdm
               style={{ background: "linear-gradient(135deg, hsl(45 90% 55% / 0.08), hsl(35 90% 50% / 0.08))" }}
             >
               <p className="font-display font-bold text-lg text-foreground text-center">{day.promo}</p>
-              <Button variant="outline" size="sm" className="w-full border-amber-400/50" onClick={() => copyText(day.promo!, "Promo")}>
-                <Copy className="w-3.5 h-3.5 mr-1" /> Copiar promo ✓
-              </Button>
               <PromoSlider dayNumber={day.day} />
             </div>
           </section>
