@@ -130,20 +130,20 @@ const semana1Days: DayData[] = [
       "Si alguien pregunta precio, no lo des de inmediato — primero manda la foto del look completo",
       "Anota quién mostró interés aunque no haya comprado — las necesitas para el Día 3",
     ],
-    lookName: "Pantalón Tiro Alto + Saco Con Solapa",
-    lookProductIds: "ID: 1268748 / ID: 1226364",
+    lookName: "Pantalón Tiro Alto + Blusa Luna",
+    lookProductIds: "Pantalón ID: 1268745 / Blusa ID: 1268737 / Tacones ID: 1286069",
     brand: "Price Shoes",
     lookAttributes: [
-      "Tiro alto estiliza la cintura, saco versátil, tela que no se arruga",
+      "Tiro alto estiliza la cintura, combo clásico blanco y vino, elegante sin esfuerzo",
     ],
     idealClient: {
-      quien: "Profesionista que necesita verse formal y moderna — búscala en contactos de oficina",
+      quien: "Profesionista que quiere verse pulida y femenina — búscala en contactos de oficina y eventos de trabajo",
       queBusca: "",
       donde: "",
     },
     salesHacks: [
-      "💡 Empieza vendiendo solo el pantalón, luego ofrece el saco",
-      "💡 Vende más jueves y viernes — ya piensan en el fin de semana",
+      "💡 Muéstrale que el pantalón blanco va con cualquier blusa de color — vende el pantalón primero",
+      "💡 Este look se vende más a mitad de semana — las profesionistas planean su ropa con anticipación",
     ],
     openingMessages: {
       cold: "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
