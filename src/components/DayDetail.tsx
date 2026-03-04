@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import OpenerSlider from "@/components/OpenerSlider";
 import { ArrowLeft, Copy, Check, Play, Image as ImageIcon, Film, Sparkles, User, Search, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -258,22 +259,6 @@ const DayDetail = ({ day, totalDays, completed, campaignId, campaignTitle, onBac
           </Tabs>
         </section>
 
-        {/* 5 — Mensaje del Día */}
-        <section className="rounded-2xl border border-border overflow-hidden shadow-sm">
-          <div className="p-4 border-b border-border bg-muted/30">
-            <h2 className="font-display font-bold text-sm text-foreground">💬 Tu Mensaje del Día</h2>
-          </div>
-          <div className="p-4 space-y-3">
-            <WhatsAppChat
-              contactName="[Nombre]"
-              messages={[{ text: day.messageTemplate, sent: true, time: "10:30 a.m." }]}
-              compact
-            />
-            <Button variant="outline" size="sm" className="w-full" onClick={() => copyText(day.messageTemplate, "Mensaje")}>
-              <Copy className="w-3.5 h-3.5 mr-1" /> Copiar mensaje ✓
-            </Button>
-          </div>
-        </section>
 
         {/* 6 — Promo (días que aplica) */}
         {day.promo && (
@@ -329,62 +314,8 @@ const DayDetail = ({ day, totalDays, completed, campaignId, campaignTitle, onBac
           </section>
         )}
 
-        {/* 7 — ¿Cómo arrancar según tu clienta? (replaces follow-up sequence) */}
-        <section className="rounded-2xl border border-border overflow-hidden shadow-sm">
-          <div className="p-4 border-b border-border bg-muted/30">
-            <h2 className="font-display font-bold text-sm text-foreground">🚀 ¿Cómo arrancar según tu clienta?</h2>
-          </div>
-          <div className="p-4 space-y-3">
-            <p className="text-xs text-muted-foreground mb-3">
-              Elige según cuánto tiempo llevas sin hablar con ella
-            </p>
-
-            {/* Cold */}
-            <div className="rounded-xl border-2 border-red-300/50 p-4 space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🔴</span>
-                <div>
-                  <p className="font-display font-bold text-sm text-foreground">Clienta fría</p>
-                  <p className="text-[10px] text-muted-foreground">Más de 60 días sin hablar</p>
-                </div>
-              </div>
-              <WhatsAppChat contactName="[Nombre]" messages={[{ text: day.openingMessages.cold, sent: true, time: "10:30 a.m." }]} compact />
-              <Button variant="outline" size="sm" className="w-full" onClick={() => copyText(day.openingMessages.cold, "Mensaje clienta fría")}>
-                <Copy className="w-3.5 h-3.5 mr-1" /> Copiar ✓
-              </Button>
-            </div>
-
-            {/* Warm */}
-            <div className="rounded-xl border-2 border-yellow-300/50 p-4 space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🟡</span>
-                <div>
-                  <p className="font-display font-bold text-sm text-foreground">Clienta tibia</p>
-                  <p className="text-[10px] text-muted-foreground">2 a 4 semanas sin hablar</p>
-                </div>
-              </div>
-              <WhatsAppChat contactName="[Nombre]" messages={[{ text: day.openingMessages.warm, sent: true, time: "10:30 a.m." }]} compact />
-              <Button variant="outline" size="sm" className="w-full" onClick={() => copyText(day.openingMessages.warm, "Mensaje clienta tibia")}>
-                <Copy className="w-3.5 h-3.5 mr-1" /> Copiar ✓
-              </Button>
-            </div>
-
-            {/* Hot */}
-            <div className="rounded-xl border-2 border-green-300/50 p-4 space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🟢</span>
-                <div>
-                  <p className="font-display font-bold text-sm text-foreground">Clienta caliente</p>
-                  <p className="text-[10px] text-muted-foreground">Habló esta semana</p>
-                </div>
-              </div>
-              <WhatsAppChat contactName="[Nombre]" messages={[{ text: day.openingMessages.hot, sent: true, time: "10:30 a.m." }]} compact />
-              <Button variant="outline" size="sm" className="w-full" onClick={() => copyText(day.openingMessages.hot, "Mensaje clienta caliente")}>
-                <Copy className="w-3.5 h-3.5 mr-1" /> Copiar ✓
-              </Button>
-            </div>
-          </div>
-        </section>
+        {/* 7 — ¿Cómo arrancar según tu clienta? — animated slider */}
+        <OpenerSlider />
 
         {/* 8 — Manejo de Objeciones */}
         <section className="rounded-2xl border border-border overflow-hidden shadow-sm">
