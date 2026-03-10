@@ -244,10 +244,10 @@ const DayDetail = ({ day, totalDays, completed, campaignId, campaignTitle, isAdm
               </p>
             </div>
 
-            {/* Hacks de venta */}
+            {/* Tips de venta */}
             <div className="space-y-1.5">
-              {day.salesHacks.map((hack, i) => (
-                <p key={i} className="text-sm text-foreground">{hack}</p>
+              {day.salesHacks.map((tip, i) => (
+                <p key={i} className="text-sm text-foreground">{tip}</p>
               ))}
             </div>
             <p className="text-xs text-muted-foreground italic">

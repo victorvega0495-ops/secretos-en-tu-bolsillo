@@ -368,20 +368,20 @@ const semana1Days: DayData[] = [
       "No menciones que llevas días intentando contactarlas — actúa como si fuera la primera vez",
       "Si alguien responde negativo, no insistas — anótala como clienta tibia para la próxima campaña",
     ],
-    lookName: "Chaleco Dama + Pantalón Pierna Ancha",
-    lookProductIds: "ID: 1223683 / ID: 1268752",
+    lookName: "Vestido Midi Negro — 2 Estilos",
+    lookProductIds: "Vestido halter ID: 1267542 / Vestido tirantes ID: 1267366 / Flats ID: 1183904 / Sandalias ID: 1262658",
     brand: "Price Shoes",
     lookAttributes: [
-      "Chaleco eleva cualquier look, pantalón pierna ancha es tendencia, combo de alto impacto",
+      "Negro que nunca falla, dos siluetas distintas para dos personalidades, del día a la noche sin cambiar nada",
     ],
     idealClient: {
-      quien: "Ejecutiva o emprendedora que cuida su imagen — búscala en redes profesionales",
+      quien: "Mujer que quiere una pieza de alto impacto que dure años en su clóset — búscala entre clientas que ya te compraron y quieren algo especial",
       queBusca: "",
       donde: "",
     },
     salesHacks: [
-      "💡 Usa un testimonial de alguien parecida a quien le escribes",
-      "💡 Actúa como si fuera la primera vez que la contactas",
+      "💡 Muéstrale los dos vestidos juntos — que ella elija cuál es su estilo. La decisión de cuál la engancha más que el vestido solo",
+      "💡 El negro se vende solo con prueba social — si tienes foto de clienta con vestido negro úsala hoy",
     ],
     openingMessages: {
       cold: "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
