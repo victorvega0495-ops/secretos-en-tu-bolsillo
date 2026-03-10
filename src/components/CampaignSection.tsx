@@ -103,6 +103,7 @@ const CampaignSection = () => {
       }}
       getProgress={(id) => getCompleted(id).length}
       isAdmin={isAdmin}
+      onAdminUnlock={() => setIsAdmin(true)}
     />
   );
 };
