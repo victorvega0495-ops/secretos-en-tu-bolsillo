@@ -587,9 +587,24 @@ days: [
           "💡 Este vestido se vende solo con el fondo — manda la imagen en el muelle o la playa, el contexto cierra la venta",
         ],
         openingMessages: {
-          cold: "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
-          warm: "Holaaa [Nombre], ¿cómo estás? Oye no me vas a creer — acabo de armar un look floral que quedó brutal y me acordé de ti. ¿Lo ves?",
-          hot: "Oye [Nombre], mira lo que acaba de llegar — de volada pensé en ti. ¿Te lo mando?",
+          cold: [
+            "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Tengo algo nuevo de playa que de volada pensé en ti. ¿Te lo mando?",
+            "Hola [Nombre]! Espero que estés bien — te escribo porque tengo un look de verano que creo que es para ti. ¿Te mando foto?",
+            "Holaaa [Nombre], ¿todo bien por allá? Vi algo hoy que no pude no pensar en ti. ¿Te lo mando?",
+            "Holaaa [Nombre], ayer te escribí y creo que se me fue el mensaje 😊 Oye tengo algo de playa que de verdad te va a gustar. ¿Te lo mando?",
+          ],
+          warm: [
+            "Holaaa [Nombre], ¿cómo estás? Tengo un look de verano que quedó increíble y pensé en ti. ¿Te lo mando?",
+            "Hola [Nombre] 😊 Oye tengo algo nuevo para este calor que creo que te va a encantar. ¿Te mando foto?",
+            "Holaaa [Nombre], ¿lista para el verano? Tengo algo que necesitas ver. ¿Te lo mando?",
+            "Holaaa [Nombre], ayer te mandé algo — oye no quiero que te lo pierdas porque de verdad creo que es para ti. ¿Te lo mando?",
+          ],
+          hot: [
+            "Oye [Nombre], tengo algo nuevo de verano y de volada pensé en ti. ¿Te lo mando?",
+            "[Nombre]! Mira lo que llegó hoy — tiene tu nombre escrito. ¿Te lo mando?",
+            "Oye [Nombre], ¿ya viste todo lo que tengo para este verano? Porque hoy llegó algo más. ¿Te mando foto?",
+            "Oye [Nombre], ayer te escribí y no sé si te llegó — este look de verdad es para ti. ¿Te lo mando?",
+          ],
         },
         statusCopyImage: "¿Azul o rosa? Elige tu mood 🌸🌊",
         statusCopyVideo: "¿Azul o rosa? Elige tu mood 🌸🌊",
