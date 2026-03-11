@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ImageIcon, Film, Upload, X, Download, Loader2, Smartphone, ArrowDown } from "lucide-react";
+import { ImageIcon, Film, Upload, X, Download, Loader2, Smartphone, ArrowDown, Share2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
