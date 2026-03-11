@@ -659,9 +659,24 @@ days: [
           "💡 El azul marino es más versátil, el rosa más femenino — pregúntale cuál es su color favorito para engancharla",
         ],
         openingMessages: {
-          cold: "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
-          warm: "Holaaa [Nombre], ¿cómo estás? Oye no me vas a creer — acabo de armar un combo de verano que quedó brutal y me acordé de ti. ¿Lo ves?",
-          hot: "Oye [Nombre], mira lo que acaba de llegar — de volada pensé en ti. ¿Te lo mando?",
+          cold: [
+            "Holaaa [Nombre], ¿cómo has estado? Hace tiempo — te escribo porque hoy tengo una promo especial de verano y pensé en ti. ¿Te cuento?",
+            "Hola [Nombre] 😊 Hace rato que no hablamos — hoy armé algo para mis clientas de confianza, una promo de verano que no voy a publicar. ¿Te interesa?",
+            "Holaaa [Nombre], ¿todo bien? Hoy es un buen día para renovar los looks de playa 😊 Tengo una promo que creo que te va a gustar. ¿Te la cuento?",
+            "Holaaa [Nombre], ayer te escribí y creo que no te llegó 😊 Hoy tengo algo mejor — una promo especial de verano. ¿Te la cuento?",
+          ],
+          warm: [
+            "Holaaa [Nombre], ¿cómo estás? Hoy tengo una promo de verano que vale la pena — ¿te la cuento?",
+            "Hola [Nombre] 😊 Hoy armé algo especial para este calor — si te llevas dos piezas te hago un descuento. ¿Te cuento?",
+            "Holaaa [Nombre], ¿ya tienes todo para el verano? Hoy tengo una promo que te puede ayudar. ¿Te la mando?",
+            "Holaaa [Nombre], ayer te mandé algo — hoy tengo algo mejor todavía, una promo especial de verano. ¿Te la cuento?",
+          ],
+          hot: [
+            "Oye [Nombre], hoy tengo una promo especial de verano para ti. ¿Te la cuento?",
+            "[Nombre]! Hoy es un buen día — tengo un descuento de temporada que no te puedes perder. ¿Le entramos?",
+            "Oye [Nombre], hoy armé algo bueno — una promo de verano que está increíble. ¿Te la mando?",
+            "Oye [Nombre], ayer te escribí — hoy tengo algo mejor todavía. Una promo de playa que de verdad vale la pena. ¿Te la cuento?",
+          ],
         },
         statusCopyImage: "Combo de verano — top + short juntos 🌞",
         statusCopyVideo: "Combo de verano — top + short juntos 🌞",
