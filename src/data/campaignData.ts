@@ -515,9 +515,24 @@ days: [
           "💡 El mono se vende mejor cuando muestras lo fácil que es usarlo — una pieza, lista para salir",
         ],
         openingMessages: {
-          cold: "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
-          warm: "Holaaa [Nombre], ¿cómo estás? Oye no me vas a creer — acabo de armar un look de playa que quedó brutal y me acordé de ti. ¿Lo ves?",
-          hot: "Oye [Nombre], mira lo que acaba de llegar — de volada pensé en ti. ¿Te lo mando?",
+          cold: [
+            "Holaaa [Nombre], ¿cómo has estado? Me acordé de ti porque vi algo perfecto para este calor. ¿Te lo mando?",
+            "Hola [Nombre]! Hace tiempo — espero que estés bien 😊 Tengo algo que cuando lo vi dije 'esto es para ella'. ¿Te mando foto?",
+            "Holaaa [Nombre], ¿todo bien por allá? Con este calor armé unos looks de playa que quedaron increíbles y pensé en ti. ¿Te los mando?",
+            "Holaaa [Nombre], ayer te escribí y creo que no te llegó 😊 Oye tengo algo que de verdad creo que te va a gustar. ¿Te lo mando?",
+          ],
+          warm: [
+            "Holaaa [Nombre], ¿cómo estás? Acabo de armar algo para este verano que quedó brutal y pensé en ti. ¿Te lo mando?",
+            "Hola [Nombre] 😊 Con este calor tengo algo que creo que te va a encantar. ¿Te lo mando?",
+            "Holaaa [Nombre], ¿ya tienes tus looks de verano listos? Porque tengo algo que necesitas ver. ¿Te mando foto?",
+            "Holaaa [Nombre], ayer te mandé algo y no sé si te llegó — oye de verdad creo que este look te va a gustar. ¿Te lo mando?",
+          ],
+          hot: [
+            "Oye [Nombre], acabo de recibir cosas nuevas para playa y de volada pensé en ti. ¿Te las mando?",
+            "[Nombre]! Llegaron cosas nuevas de verano y este look tiene tu nombre escrito. ¿Te lo mando?",
+            "Oye [Nombre], ¿ya tienes todo para tus planes de verano? Tengo algo perfecto para ti. ¿Te mando foto?",
+            "Oye [Nombre], ayer te escribí — creo que no te llegó. Oye en serio este look que tengo para ti está increíble. ¿Te lo mando?",
+          ],
         },
         statusCopyImage: "¿A la playa o al paseo? Este mono lo hace todo 👀",
         statusCopyVideo: "¿A la playa o al paseo? Este mono lo hace todo 👀",
