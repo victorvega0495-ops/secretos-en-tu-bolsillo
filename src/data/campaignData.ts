@@ -36,9 +36,9 @@ export interface DayData {
   idealClient: IdealClient;
   salesHacks: string[];
   openingMessages: {
-    cold: string;
-    warm: string;
-    hot: string;
+    cold: string | string[];
+    warm: string | string[];
+    hot: string | string[];
   };
   statusCopyImage: string;
   statusCopyVideo: string;
