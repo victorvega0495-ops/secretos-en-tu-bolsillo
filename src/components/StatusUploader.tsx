@@ -55,6 +55,29 @@ const downloadBlob = async (url: string, fileName: string, toast: ReturnType<typ
   }
 };
 
+const shareOrDownload = async (url: string, fileName: string, mimePrefix: string, toast: ReturnType<typeof useToast>["toast"]) => {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const ext = fileName.split(".").pop()?.toLowerCase() || "bin";
+    const mimeType = blob.type || `${mimePrefix}/${ext === "jpg" ? "jpeg" : ext}`;
+    const file = new File([blob], fileName, { type: mimeType });
+
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: fileName });
+      return;
+    }
+  } catch (err: any) {
+    if (err?.name === "AbortError") return; // user cancelled
+  }
+  // Fallback to download
+  downloadBlob(url, fileName, toast);
+};
+
+const ACTION_BTN = "flex items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-colors";
+const DL_BTN = `${ACTION_BTN} text-primary hover:bg-primary/10`;
+const SHARE_BTN = `${ACTION_BTN} text-white`;
+
 /* ── Step Indicator ── */
 const StepIndicator = ({ currentStep }: { currentStep?: number }) => (
   <div className="flex items-center justify-center gap-0 py-4">
