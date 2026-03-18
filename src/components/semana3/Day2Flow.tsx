@@ -202,6 +202,7 @@ const Day2Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
                 "Holaaa, tengo algo que se me hizo perfecto para ti — ya sabes que te conozco el gusto 😊",
                 "Oye tú que siempre me pides cosas lindas — mira esto antes de que se acabe 👀"
               ]}
+              messageSection="video_ideas"
             />
           )}
           {step === 2 && (
