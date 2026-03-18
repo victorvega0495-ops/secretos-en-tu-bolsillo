@@ -5,6 +5,7 @@ import DayDetail from "./DayDetail";
 import Day1Flow from "./semana3/Day1Flow";
 import Day2Flow from "./semana3/Day2Flow";
 import Day3Flow from "./semana3/Day3Flow";
+import Day4Flow from "./semana3/Day4Flow";
 import { campaigns } from "@/data/campaignData";
 
 type View = "list" | "campaign" | "day";
@@ -103,6 +104,19 @@ const CampaignSection = () => {
             completed={getCompleted(campaign.id).includes(3)}
             onBack={() => setView("campaign")}
             onComplete={() => completeDay(campaign.id, 3)}
+            onNavigateNext={handleNavigateNext}
+          />
+        );
+      }
+      if (campaign.id === "semana-3" && activeDay === 4) {
+        return (
+          <Day4Flow
+            campaignId={campaign.id}
+            campaignTitle={campaign.title}
+            isAdmin={isAdmin}
+            completed={getCompleted(campaign.id).includes(4)}
+            onBack={() => setView("campaign")}
+            onComplete={() => completeDay(campaign.id, 4)}
             onNavigateNext={handleNavigateNext}
           />
         );
