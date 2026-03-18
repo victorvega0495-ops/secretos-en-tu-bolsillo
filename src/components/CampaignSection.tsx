@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import CampaignList from "./CampaignList";
 import CampaignView from "./CampaignView";
 import DayDetail from "./DayDetail";
+import Day1Flow from "./semana3/Day1Flow";
 import { campaigns } from "@/data/campaignData";
 
 type View = "list" | "campaign" | "day";
