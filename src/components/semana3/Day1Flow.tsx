@@ -433,15 +433,23 @@ const Step3Slider = ({ assets, uploading, isAdmin, inputRefs, campaignId, active
         ))}
       </div>
 
-      {/* Pulsing share button */}
+      {/* Action buttons */}
       {asset && (
-        <button
-          onClick={() => handleShare(asset.url, asset.fileName)}
-          className="mt-4 flex items-center gap-2 text-white font-bold text-base px-8 py-3.5 rounded-full shadow-xl animate-pulse"
-          style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
-        >
-          <Share2 className="w-5 h-5" /> Compartir a Mi Estado
-        </button>
+        <div className="flex items-center gap-3 mt-4 px-5 w-full max-w-sm">
+          <button
+            onClick={() => { try { fetch(asset.url).then(r => r.blob()).then(b => { const u = URL.createObjectURL(b); const a = document.createElement("a"); a.href = u; a.download = asset.fileName; a.click(); URL.revokeObjectURL(u); }); } catch {} }}
+            className="flex-1 flex items-center justify-center gap-2 text-sm font-semibold py-3 rounded-xl border border-muted-foreground/30 text-foreground hover:bg-muted/50 transition-colors"
+          >
+            <Download className="w-4 h-4" /> ⬇️ Descargar
+          </button>
+          <button
+            onClick={() => handleShare(asset.url, asset.fileName)}
+            className="flex-1 flex items-center justify-center gap-2 text-sm font-bold text-white py-3 rounded-xl shadow-lg"
+            style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+          >
+            <Share2 className="w-4 h-4" /> 📤 Compartir
+          </button>
+        </div>
       )}
 
       {/* Admin meta inputs */}
