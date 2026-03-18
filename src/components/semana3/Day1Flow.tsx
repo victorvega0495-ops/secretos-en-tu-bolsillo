@@ -585,13 +585,21 @@ const Step4Upload = ({ assets, onShare }: Step4Props) => {
 
           <img src={fullScreenAsset.url} alt={`Imagen ${fullScreenIdx + 1}`} className="max-h-[70vh] max-w-[90vw] object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()} />
 
-          <button
-            onClick={(e) => { e.stopPropagation(); handleShare(fullScreenAsset.url, fullScreenAsset.fileName); }}
-            className="mt-6 flex items-center gap-2 text-white font-bold text-base px-8 py-3.5 rounded-full shadow-xl animate-pulse"
-            style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
-          >
-            <Share2 className="w-5 h-5" /> Compartir a Mi Estado
-          </button>
+          <div className="flex items-center gap-3 mt-6" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => { try { fetch(fullScreenAsset.url).then(r => r.blob()).then(b => { const u = URL.createObjectURL(b); const a = document.createElement("a"); a.href = u; a.download = fullScreenAsset.fileName; a.click(); URL.revokeObjectURL(u); }); } catch {} }}
+              className="flex-1 flex items-center justify-center gap-2 text-sm font-semibold py-3 rounded-xl border border-white/30 text-white hover:bg-white/10 transition-colors"
+            >
+              <Download className="w-4 h-4" /> ⬇️ Descargar
+            </button>
+            <button
+              onClick={() => handleShare(fullScreenAsset.url, fullScreenAsset.fileName)}
+              className="flex-1 flex items-center justify-center gap-2 text-sm font-bold text-white py-3 rounded-xl shadow-lg"
+              style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+            >
+              <Share2 className="w-4 h-4" /> 📤 Compartir
+            </button>
+          </div>
 
           {showSharePopup && (
             <div className="absolute bottom-32 left-1/2 -translate-x-1/2 bg-white rounded-2xl px-6 py-4 shadow-2xl animate-in zoom-in-95 fade-in duration-300 space-y-2.5 min-w-[260px]" onClick={(e) => { e.stopPropagation(); setShowSharePopup(false); }}>
