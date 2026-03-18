@@ -110,6 +110,12 @@ const PremiosSemana = ({ campaignId, isAdmin }: PremiosSemanaProps) => {
     <div className="px-4 py-6 max-w-2xl mx-auto space-y-6">
       <h2 className="text-xl font-bold text-foreground text-center">🏆 Premios de la semana</h2>
 
+      <div className="w-full rounded-2xl px-5 py-4 text-center" style={{ background: "linear-gradient(135deg, #ec4899, #8b5cf6)" }}>
+        <p className="text-white font-bold text-sm leading-snug">
+          ⭐ Cada producto que compras acumula puntos — quien sume más puntos, ¡gana!
+        </p>
+      </div>
+
       {/* Product mosaic */}
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
         {Array.from({ length: totalSlots }, (_, i) => {
