@@ -193,7 +193,7 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
             />
           )}
           {step === 3 && (
-            <Step4Upload assets={carouselAssets} onShare={shareOrDownload} onDownloadAll={downloadAll} isAdmin={isAdmin} />
+            <Step4Upload assets={carouselAssets} onShare={shareOrDownload} isAdmin={isAdmin} />
           )}
           {step === 4 && (
             <StepSummary
