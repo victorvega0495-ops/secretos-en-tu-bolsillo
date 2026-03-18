@@ -28,10 +28,6 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [dayCompleted, setDayCompleted] = useState(completed);
 
-  const [gridAssets, setGridAssets] = useState<Record<number, { url: string; fileName: string } | null>>({});
-  const [gridUploading, setGridUploading] = useState<number | null>(null);
-  const gridInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
-
   const [carouselAssets, setCarouselAssets] = useState<Record<number, { url: string; fileName: string } | null>>({});
   const [carouselUploading, setCarouselUploading] = useState<number | null>(null);
   const carouselInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
