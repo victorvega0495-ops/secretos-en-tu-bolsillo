@@ -312,14 +312,17 @@ const SingleVideoSlot = ({ assets, uploading, isAdmin, campaignId, inputRefs, on
         </div>
       )}
 
-      <div className="mt-6 px-5 w-full max-w-sm">
-        <div className="rounded-xl p-4 space-y-3" style={{ background: "hsl(var(--muted) / 0.5)" }}>
-          <p className="text-sm font-semibold text-foreground">💡 Ideas para arrancar</p>
-          <p className="text-sm text-muted-foreground leading-relaxed">"Amiga, mira este look para ir con los niños — ¿no está increíble? A mí me encantó para el fin de semana 😍"</p>
-          <p className="text-sm text-muted-foreground leading-relaxed">"Oye, ¿ya viste lo nuevo en looks de familia? Mira este video, creo que te va a encantar para ti y tu peque 👨‍👩‍👧"</p>
-          <p className="text-sm text-muted-foreground leading-relaxed">"¿Buscas algo para vestirse igual con tu hija? Mira esto — está padrísimo y súper accesible 💕"</p>
-        </div>
-      </div>
+      <EditableMessages
+        campaignId={campaignId}
+        dayNumber={DAY}
+        section="video_ideas"
+        isAdmin={isAdmin}
+        defaultMessages={[
+          "Amiga, mira este look para ir con los niños — ¿no está increíble? A mí me encantó para el fin de semana 😍",
+          "Oye, ¿ya viste lo nuevo en looks de familia? Mira este video, creo que te va a encantar para ti y tu peque 👨‍👩‍👧",
+          "¿Buscas algo para vestirse igual con tu hija? Mira esto — está padrísimo y súper accesible 💕"
+        ]}
+      />
     </div>
   );
 };
