@@ -501,7 +501,7 @@ interface Step4Props {
   isAdmin?: boolean;
 }
 
-const Step4Upload = ({ assets, onShare, onDownloadAll }: Step4Props) => {
+const Step4Upload = ({ assets, onShare }: Step4Props) => {
   const [fullScreenIdx, setFullScreenIdx] = useState<number | null>(null);
   const [showSharePopup, setShowSharePopup] = useState(false);
 
