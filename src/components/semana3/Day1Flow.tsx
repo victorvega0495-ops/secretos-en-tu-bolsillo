@@ -106,7 +106,6 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
     }
   }, []);
 
-
   const goNext = () => {
     if (step < TOTAL_STEPS - 1) { setDirection("right"); setStep(step + 1); window.scrollTo(0, 0); }
   };
@@ -122,7 +121,7 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
     setDayCompleted(true);
   };
 
-  const stepLabels = ["La misión", "Los productos", "Tu contenido", "Súbelas", "Resumen"];
+  const stepLabels = ["La misión", "Tu contenido", "Súbelas", "Resumen"];
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -152,15 +151,6 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
         >
           {step === 0 && <Step1Mission />}
           {step === 1 && (
-            <Step2Products
-              assets={gridAssets} uploading={gridUploading} isAdmin={isAdmin} inputRefs={gridInputRefs}
-              campaignId={campaignId}
-              onUpload={(file, idx) => uploadAsset(file, `grid_${idx}`, idx, setGridAssets, setGridUploading)}
-              onRemove={(idx) => removeAsset(`grid_${idx}`, idx, setGridAssets, gridAssets)}
-              onShare={shareOrDownload}
-            />
-          )}
-          {step === 2 && (
             <Step3Slider
               assets={carouselAssets} uploading={carouselUploading} isAdmin={isAdmin} inputRefs={carouselInputRefs}
               campaignId={campaignId} activeIndex={carouselIndex} onIndexChange={setCarouselIndex}
@@ -169,14 +159,14 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
               onShare={shareOrDownload}
             />
           )}
-          {step === 3 && (
+          {step === 2 && (
             <Step4Upload assets={carouselAssets} onShare={shareOrDownload} isAdmin={isAdmin} />
           )}
-          {step === 4 && (
+          {step === 3 && (
             <StepSummary
               completed={dayCompleted}
               onComplete={handleComplete}
-              onBackToImages={() => goToStep(2)}
+              onBackToImages={() => goToStep(1)}
               onNavigateNext={onNavigateNext}
               onBackToMenu={onBack}
             />
