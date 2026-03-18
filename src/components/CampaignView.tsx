@@ -199,13 +199,14 @@ const CampaignView = ({ campaign, completedDays, isAdmin, onAdminToggle, onBack,
           {/* Community card */}
           <button
             onClick={() => setShowCommunity(true)}
-            className="rounded-xl border border-border bg-card p-4 text-left transition-all hover:shadow-lg hover:-translate-y-0.5"
+            className="rounded-xl border-0 p-4 text-left transition-all hover:shadow-lg hover:-translate-y-0.5 animate-[community-pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]"
+            style={{ background: "linear-gradient(135deg, #ec4899, #8b5cf6)" }}
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-2xl">💬</span>
             </div>
-            <p className="font-display font-bold text-sm text-foreground">Comunidad</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">Lo que dicen las socias</p>
+            <p className="font-display font-bold text-sm text-white">Comunidad</p>
+            <p className="text-[11px] text-white/80 mt-0.5 line-clamp-2">Lo que dicen las socias</p>
           </button>
         </div>
       </div>
