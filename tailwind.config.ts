@@ -101,6 +101,10 @@ export default {
           from: { opacity: "0" },
           to: { opacity: "1" },
         },
+        "community-pulse": {
+          "0%, 100%": { transform: "scale(1)", boxShadow: "0 0 0 0 rgba(236,72,153,0.3)" },
+          "50%": { transform: "scale(1.03)", boxShadow: "0 0 20px 4px rgba(139,92,246,0.25)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -110,6 +114,7 @@ export default {
         "fade-in-up": "fade-in-up 0.8s ease-out forwards",
         "pulse-glow": "pulse-glow 4s ease-in-out infinite",
         "fade-in": "fade-in 0.5s ease-out forwards",
+        "community-pulse": "community-pulse 2s cubic-bezier(0.4,0,0.6,1) infinite",
       },
     },
   },
