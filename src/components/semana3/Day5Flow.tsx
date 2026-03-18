@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { ProductMetaInputs, ProductMetaOverlay } from "./ProductMetaFields";
+import EditableMessages from "./EditableMessages";
 
 interface Day5FlowProps {
   campaignId: string;
@@ -176,6 +177,7 @@ const Day5Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
                 "Oye, ¿ya tienes tu outfit para el finde? Mira estos tennis con este look casual — te van a encantar 😍",
                 "Para las que trabajan y quieren verse increíbles sin complicarse — mira este combo de viernes 💃"
               ]}
+              messageSection="video_ideas"
             />
           )}
           {step === 2 && (
@@ -199,6 +201,7 @@ const Day5Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
                 "¿Viste el video que te mandé? Aquí te dejo la foto del look por si quieres verlo mejor 📸",
                 "Te dejo la imagen para que lo veas con calma — si te gusta me dices y te lo aparto para el finde 😊"
               ]}
+              messageSection="image_ideas"
             />
           )}
           {step === 3 && (
@@ -263,11 +266,12 @@ interface MediaSliderProps {
   onShare: (url: string, fileName: string) => void;
   onDownload: (url: string, fileName: string) => void;
   inspirationMessages: string[];
+  messageSection: string;
 }
 
 const MediaSlider = ({
   type, title, instruction, totalSlots, assets, uploading, isAdmin, campaignId, inputRefs,
-  activeIndex, onIndexChange, onUpload, onRemove, onShare, onDownload, inspirationMessages
+  activeIndex, onIndexChange, onUpload, onRemove, onShare, onDownload, inspirationMessages, messageSection
 }: MediaSliderProps) => {
   const asset = assets[activeIndex];
   const isUploading = uploading === activeIndex;
@@ -351,14 +355,13 @@ const MediaSlider = ({
         ))}
       </div>
 
-      <div className="mt-6 px-5 w-full max-w-sm">
-        <div className="rounded-xl p-4 space-y-3" style={{ background: "hsl(var(--muted) / 0.5)" }}>
-          <p className="text-sm font-semibold text-foreground">💡 Ideas para arrancar</p>
-          {inspirationMessages.map((msg, i) => (
-            <p key={i} className="text-sm text-muted-foreground leading-relaxed">"{msg}"</p>
-          ))}
-        </div>
-      </div>
+      <EditableMessages
+        campaignId={campaignId}
+        dayNumber={DAY}
+        section={messageSection}
+        isAdmin={isAdmin}
+        defaultMessages={inspirationMessages}
+      />
     </div>
   );
 };

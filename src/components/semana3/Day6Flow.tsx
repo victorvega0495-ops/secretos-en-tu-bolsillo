@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { ProductMetaInputs, ProductMetaOverlay, useProductMeta, useSaveMeta } from "./ProductMetaFields";
+import EditableMessages from "./EditableMessages";
 
 interface Day6FlowProps {
   campaignId: string;
@@ -332,14 +333,13 @@ const DetailSlider = ({
         ))}
       </div>
 
-      <div className="mt-6 px-5 w-full max-w-sm">
-        <div className="rounded-xl p-4 space-y-3" style={{ background: "hsl(var(--muted) / 0.5)" }}>
-          <p className="text-sm font-semibold text-foreground">💡 Ideas para arrancar</p>
-          {inspirationMessages.map((msg, i) => (
-            <p key={i} className="text-sm text-muted-foreground leading-relaxed">"{msg}"</p>
-          ))}
-        </div>
-      </div>
+      <EditableMessages
+        campaignId={campaignId}
+        dayNumber={DAY}
+        section="image_ideas"
+        isAdmin={isAdmin}
+        defaultMessages={inspirationMessages}
+      />
     </div>
   );
 };
