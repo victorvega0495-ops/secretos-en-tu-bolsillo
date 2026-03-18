@@ -5,6 +5,7 @@ import DayDetail from "./DayDetail";
 import Day1Flow from "./semana3/Day1Flow";
 import Day2Flow from "./semana3/Day2Flow";
 import Day3Flow from "./semana3/Day3Flow";
+import Day4Flow from "./semana3/Day4Flow";
 import { campaigns } from "@/data/campaignData";
 
 type View = "list" | "campaign" | "day";
