@@ -136,6 +136,19 @@ const CampaignSection = () => {
           />
         );
       }
+      if (campaign.id === "semana-3" && activeDay === 6) {
+        return (
+          <Day6Flow
+            campaignId={campaign.id}
+            campaignTitle={campaign.title}
+            isAdmin={isAdmin}
+            completed={getCompleted(campaign.id).includes(6)}
+            onBack={() => setView("campaign")}
+            onComplete={() => completeDay(campaign.id, 6)}
+            onNavigateNext={handleNavigateNext}
+          />
+        );
+      }
       return (
         <DayDetail
           day={dayData}
