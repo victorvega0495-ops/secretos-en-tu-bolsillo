@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface PremiosSemanaProps {
   campaignId: string;
@@ -13,7 +14,7 @@ interface SlotData {
   points: string;
 }
 
-const TOTAL_SLOTS = 12;
+const BASE_SLOTS = 12;
 const PRIZE_DATA = [
   { place: "🥇 1er lugar", desc: "Cupón de $2,000 válido en tienda o app", gradient: "from-yellow-200 to-amber-300", border: "border-amber-400" },
   { place: "🥈 2do lugar", desc: "2 boletos para Six Flags o cupón de $1,500", gradient: "from-gray-200 to-slate-300", border: "border-slate-400" },
@@ -22,6 +23,7 @@ const PRIZE_DATA = [
 
 const PremiosSemana = ({ campaignId, isAdmin }: PremiosSemanaProps) => {
   const [slots, setSlots] = useState<Record<number, SlotData>>({});
+  const [totalSlots, setTotalSlots] = useState(BASE_SLOTS);
   const [uploading, setUploading] = useState<number | null>(null);
 
   useEffect(() => {
@@ -34,6 +36,7 @@ const PremiosSemana = ({ campaignId, isAdmin }: PremiosSemanaProps) => {
       .then(({ data }) => {
         if (!data) return;
         const map: Record<number, SlotData> = {};
+        let maxIdx = BASE_SLOTS - 1;
         data.forEach((r: any) => {
           const idx = parseInt(r.asset_type.replace("premio_", ""), 10);
           if (!isNaN(idx)) {
@@ -42,9 +45,11 @@ const PremiosSemana = ({ campaignId, isAdmin }: PremiosSemanaProps) => {
               productId: r.product_id || "",
               points: r.product_description || "",
             };
+            if (idx > maxIdx) maxIdx = idx;
           }
         });
         setSlots(map);
+        setTotalSlots(Math.max(BASE_SLOTS, maxIdx + 1));
       });
   }, [campaignId]);
 
@@ -65,11 +70,11 @@ const PremiosSemana = ({ campaignId, isAdmin }: PremiosSemanaProps) => {
       product_description: slots[idx]?.points || "",
       updated_at: new Date().toISOString(),
     } as any, { onConflict: "campaign,day_number,asset_type" });
-    setSlots((prev) => ({ ...prev, [idx]: { ...prev[idx], imageUrl: url, productId: prev[idx]?.productId || "", points: prev[idx]?.points || "" } }));
+    setSlots((prev) => ({ ...prev, [idx]: { imageUrl: url, productId: prev[idx]?.productId || "", points: prev[idx]?.points || "" } }));
     setUploading(null);
   }, [campaignId, slots]);
 
-  const deleteImage = useCallback(async (idx: number) => {
+  const deleteSlot = useCallback(async (idx: number) => {
     await supabase.from("day_assets").delete().eq("campaign", campaignId).eq("day_number", 0).eq("asset_type", `premio_${idx}`);
     setSlots((prev) => {
       const next = { ...prev };
@@ -99,13 +104,15 @@ const PremiosSemana = ({ campaignId, isAdmin }: PremiosSemanaProps) => {
     } as any, { onConflict: "campaign,day_number,asset_type" });
   }, [campaignId, slots]);
 
+  const addSlot = () => setTotalSlots((prev) => prev + 1);
+
   return (
     <div className="px-4 py-6 max-w-2xl mx-auto space-y-6">
       <h2 className="text-xl font-bold text-foreground text-center">🏆 Premios de la semana</h2>
 
       {/* Product mosaic */}
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-        {Array.from({ length: TOTAL_SLOTS }, (_, i) => {
+        {Array.from({ length: totalSlots }, (_, i) => {
           const slot = slots[i];
           return (
             <div key={i} className="relative rounded-xl border border-border bg-card overflow-hidden aspect-square flex flex-col">
@@ -114,19 +121,17 @@ const PremiosSemana = ({ campaignId, isAdmin }: PremiosSemanaProps) => {
                   <img src={slot.imageUrl} alt={`Producto ${i + 1}`} className="w-full h-full object-cover" />
                   {isAdmin && (
                     <button
-                      onClick={() => deleteImage(i)}
-                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center"
+                      onClick={() => deleteSlot(i)}
+                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   )}
-                  {/* Socia view: product ID label */}
                   {!isAdmin && slot.productId && (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-2 py-1">
                       <p className="text-white text-[10px] font-bold truncate">{slot.productId}</p>
                     </div>
                   )}
-                  {/* Socia view: points badge */}
                   {!isAdmin && slot.points && (
                     <div className="absolute top-1 left-1 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                       {slot.points} pts
@@ -147,7 +152,6 @@ const PremiosSemana = ({ campaignId, isAdmin }: PremiosSemanaProps) => {
                   )}
                 </label>
               )}
-              {/* Admin: meta fields */}
               {isAdmin && (
                 <div className="p-1.5 space-y-1 bg-muted/50">
                   <input
@@ -170,6 +174,19 @@ const PremiosSemana = ({ campaignId, isAdmin }: PremiosSemanaProps) => {
           );
         })}
       </div>
+
+      {/* Add slot button - admin only */}
+      {isAdmin && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full"
+          onClick={addSlot}
+        >
+          <Plus className="w-4 h-4 mr-1.5" />
+          Agregar producto
+        </Button>
+      )}
 
       {/* Prize structure */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

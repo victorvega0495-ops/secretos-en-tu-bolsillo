@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { ArrowLeft, Check, Lock } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Check, Lock, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Campaign } from "@/data/campaignData";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import CommunityActivityFeed from "@/components/CommunityActivityFeed";
-import CommunityDrawer from "@/components/CommunityDrawer";
+import CommunityTips from "@/components/CommunityTips";
 import PremiosSemana from "@/components/semana3/PremiosSemana";
 
 interface CampaignViewProps {
@@ -39,7 +38,6 @@ const getStreak = (completedDays: number[]): number => {
   if (completedDays.length === 0) return 0;
   const sorted = [...completedDays].sort((a, b) => a - b);
   let streak = 0;
-  // Count consecutive from the latest completed day backwards
   for (let i = sorted.length - 1; i >= 0; i--) {
     if (i === sorted.length - 1) {
       streak = 1;
@@ -58,7 +56,7 @@ const CampaignView = ({ campaign, completedDays, isAdmin, onAdminToggle, onBack,
   const { toast } = useToast();
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [password, setPassword] = useState("");
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showCommunity, setShowCommunity] = useState(false);
   const done = completedDays.length;
   const total = campaign.days.length;
   const streak = getStreak(completedDays);
@@ -74,6 +72,28 @@ const CampaignView = ({ campaign, completedDays, isAdmin, onAdminToggle, onBack,
       setPassword("");
     }
   };
+
+  // Full-screen community view
+  if (showCommunity) {
+    return (
+      <div className="pt-16 pb-16 min-h-screen">
+        <div
+          className="px-4 py-6 text-center text-white relative"
+          style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%), hsl(220 85% 55%))" }}
+        >
+          <button onClick={() => setShowCommunity(false)} className="absolute left-4 top-4 text-white/80 hover:text-white flex items-center gap-1 text-sm">
+            <ArrowLeft className="w-4 h-4" />
+            Volver
+          </button>
+          <h1 className="font-display text-lg font-bold mt-2">💬 Comunidad</h1>
+          <p className="text-xs text-white/80 mt-1">Lo que dicen las socias</p>
+        </div>
+        <div className="px-4 py-6 max-w-2xl mx-auto">
+          <CommunityTips dayNumber={1} campaign={campaign.title} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-16 pb-16">
@@ -161,7 +181,7 @@ const CampaignView = ({ campaign, completedDays, isAdmin, onAdminToggle, onBack,
                   )}
                 </div>
                 <p className="font-display font-bold text-sm text-foreground">Día {d.day}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{d.focus}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{d.focus}</p>
                 <div className="mt-2">
                   <span
                     className={cn(
@@ -175,6 +195,18 @@ const CampaignView = ({ campaign, completedDays, isAdmin, onAdminToggle, onBack,
               </button>
             );
           })}
+
+          {/* Community card */}
+          <button
+            onClick={() => setShowCommunity(true)}
+            className="rounded-xl border border-border bg-card p-4 text-left transition-all hover:shadow-lg hover:-translate-y-0.5"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-2xl">💬</span>
+            </div>
+            <p className="font-display font-bold text-sm text-foreground">Comunidad</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">Lo que dicen las socias</p>
+          </button>
         </div>
       </div>
 
@@ -182,20 +214,6 @@ const CampaignView = ({ campaign, completedDays, isAdmin, onAdminToggle, onBack,
       {campaign.id === "semana-3" && (
         <PremiosSemana campaignId={campaign.id} isAdmin={isAdmin} />
       )}
-
-        {/* Community activity feed */}
-        <CommunityActivityFeed
-          campaign={campaign.title}
-          onOpenDrawer={() => setDrawerOpen(true)}
-        />
-
-        {/* Community drawer (no floating bubble since externalOpen is used) */}
-        <CommunityDrawer
-          dayNumber={1}
-          campaign={campaign.title}
-          externalOpen={drawerOpen}
-          onExternalClose={() => setDrawerOpen(false)}
-        />
     </div>
   );
 };
