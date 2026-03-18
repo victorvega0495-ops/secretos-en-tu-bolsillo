@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import CelebrationOverlay from "@/components/CelebrationOverlay";
-import { celebrationMessages } from "@/data/campaignData";
 import { cn } from "@/lib/utils";
 
 interface Day1FlowProps {
