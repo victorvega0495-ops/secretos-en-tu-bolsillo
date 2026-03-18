@@ -497,7 +497,6 @@ const Step3Slider = ({ assets, uploading, isAdmin, inputRefs, campaignId, active
 interface Step4Props {
   assets: Record<number, { url: string; fileName: string } | null>;
   onShare: (url: string, fileName: string) => void;
-  onDownloadAll: () => void;
   isAdmin?: boolean;
 }
 
