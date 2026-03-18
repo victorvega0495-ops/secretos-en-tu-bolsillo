@@ -267,7 +267,6 @@ const Step2Products = ({ assets, uploading, isAdmin, inputRefs, campaignId, onUp
   }, [lightboxIdx]);
 
   const lightboxAsset = lightboxIdx !== null ? assets[lightboxIdx] : null;
-  const lightboxMeta = lightboxIdx !== null ? PRODUCT_META[lightboxIdx] : null;
 
   return (
     <div className="space-y-5 py-6">
@@ -279,33 +278,38 @@ const Step2Products = ({ assets, uploading, isAdmin, inputRefs, campaignId, onUp
         {Array.from({ length: 12 }, (_, i) => {
           const asset = assets[i];
           const isUploading = uploading === i;
+          const assetType = `grid_${i}`;
           return (
-            <div key={i} className="relative aspect-[3/4] rounded-lg overflow-hidden">
-              {isUploading ? (
-                <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.3), hsl(275 65% 50% / 0.3))" }}>
-                  <Loader2 className="w-6 h-6 text-white animate-spin" />
-                </div>
-              ) : asset ? (
-                <>
-                  <img src={asset.url} alt={`Producto ${i + 1}`} className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all" onClick={() => setLightboxIdx(i)} />
-                  {isAdmin && (
-                    <button onClick={() => onRemove(i)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80">
-                      <X className="w-3 h-3" />
-                    </button>
-                  )}
-                </>
-              ) : (
-                <div
-                  className="w-full h-full flex flex-col items-center justify-center gap-1 cursor-pointer"
-                  style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.15), hsl(275 65% 50% / 0.15))" }}
-                  onClick={() => isAdmin && inputRefs.current[i]?.click()}
-                >
-                  {isAdmin ? <Upload className="w-4 h-4 text-muted-foreground" /> : <ImageIcon className="w-4 h-4 text-muted-foreground/50" />}
-                  <span className="text-[9px] text-muted-foreground">{i + 1}</span>
-                </div>
-              )}
-              <input ref={(el) => { inputRefs.current[i] = el; }} type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) { onUpload(f, i); e.target.value = ""; } }} />
+            <div key={i}>
+              <div className="relative aspect-[3/4] rounded-lg overflow-hidden">
+                {isUploading ? (
+                  <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.3), hsl(275 65% 50% / 0.3))" }}>
+                    <Loader2 className="w-6 h-6 text-white animate-spin" />
+                  </div>
+                ) : asset ? (
+                  <>
+                    <img src={asset.url} alt={`Producto ${i + 1}`} className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all" onClick={() => setLightboxIdx(i)} />
+                    {!isAdmin && <ProductMetaOverlay campaignId={campaignId} dayNumber={DAY} assetType={assetType} />}
+                    {isAdmin && (
+                      <button onClick={() => onRemove(i)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80">
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div
+                    className="w-full h-full flex flex-col items-center justify-center gap-1 cursor-pointer"
+                    style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.15), hsl(275 65% 50% / 0.15))" }}
+                    onClick={() => isAdmin && inputRefs.current[i]?.click()}
+                  >
+                    {isAdmin ? <Upload className="w-4 h-4 text-muted-foreground" /> : <ImageIcon className="w-4 h-4 text-muted-foreground/50" />}
+                    <span className="text-[9px] text-muted-foreground">{i + 1}</span>
+                  </div>
+                )}
+                <input ref={(el) => { inputRefs.current[i] = el; }} type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) { onUpload(f, i); e.target.value = ""; } }} />
+              </div>
+              {isAdmin && <ProductMetaInputs campaignId={campaignId} dayNumber={DAY} assetType={assetType} />}
             </div>
           );
         })}
@@ -319,10 +323,7 @@ const Step2Products = ({ assets, uploading, isAdmin, inputRefs, campaignId, onUp
           </button>
           <div className="relative max-h-[85vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
             <img src={lightboxAsset.url} alt={`Producto ${lightboxIdx + 1}`} className="max-h-[85vh] max-w-[90vw] object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-300" />
-            <div className="absolute bottom-0 left-0 right-0 bg-black/70 backdrop-blur-sm rounded-b-xl px-4 py-3">
-              <p className="text-white font-bold text-sm">{lightboxMeta?.id}</p>
-              <p className="text-white/80 text-xs">{lightboxMeta?.description}</p>
-            </div>
+            <ProductMetaOverlay campaignId={campaignId} dayNumber={DAY} assetType={`grid_${lightboxIdx}`} />
           </div>
         </div>
       )}
