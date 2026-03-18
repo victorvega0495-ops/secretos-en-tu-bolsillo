@@ -1,12 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Copy, Check, Download, Share2, Upload, X, Loader2, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Download, Share2, Upload, X, Loader2, Image as ImageIcon, Hand } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import ImageLightbox from "@/components/ImageLightbox";
 import CelebrationOverlay from "@/components/CelebrationOverlay";
 import { celebrationMessages } from "@/data/campaignData";
 import { cn } from "@/lib/utils";
@@ -25,36 +23,9 @@ const TOTAL_STEPS = 5; // 4 pasos + resumen
 const BUCKET = "campaign-assets";
 const DAY = 1;
 
-const GENERIC_OPENERS = {
-  cold: [
-    "Holaaa [Nombre], ¿cómo has estado? Hace tiempo que no sé nada de ti 😊 Oye, acabo de recibir algo que de volada pensé en ti cuando lo vi. ¿Te mando foto?",
-    "Holaaa [Nombre], ¡cuánto tiempo sin saber de ti! 😊 Mira, me llegó algo nuevo y de volada dije \"esto le va a gustar\". ¿Te lo enseño?",
-    "Hola [Nombre], ¿cómo estás? Te escribo porque acabo de recibir algo que se me hizo ideal para ti. ¿Te mando foto? Sin compromiso 😊",
-    "Holaaa [Nombre], sé que tiene rato que no nos vemos pero mira lo que acaba de llegar — creo que te va a encantar 😍 ¿Te lo mando?",
-  ],
-  warm: [
-    "Holaaa [Nombre], ¿cómo estás? Oye no me vas a creer — acabo de armar un look que quedó brutal y me acordé de ti. ¿Lo ves?",
-    "Holaaa [Nombre], mira lo que acabo de armar — creo que te va a encantar. ¿Te lo enseño? 😍",
-    "Oye [Nombre], acabo de recibir algo nuevo y dije \"esto es para ella\". ¿Te lo mando? 😊",
-    "Holaaa [Nombre], ¿cómo te va? Tengo algo que creo que te va a gustar mucho. ¿Te mando foto?",
-  ],
-  hot: [
-    "Oye [Nombre], mira lo que acaba de llegar — de volada pensé en ti. ¿Te lo mando?",
-    "Oye [Nombre], ¿ya viste mi estado? Ahí subí algo que sé que te va a gustar. ¿Te lo mando por aquí?",
-    "Hola [Nombre], oye acabo de subir algo a mi estado que sé que es tu estilo. ¿Quieres que te lo mande? 😊",
-    "Oye [Nombre], mira esto — de volada pensé en ti cuando lo vi. ¿Te interesa? 😍",
-  ],
-};
-
-const PLACEHOLDER_OBJECTIONS = [
-  { objection: "¿Cuánto cuesta?", response: "Con gusto te paso el precio — ¿te lo mando con foto para que lo veas completo? 😊" },
-  { objection: "Está caro", response: "Entiendo hermosa — mira, la calidad de este producto es importada y se nota en los acabados. Aparte te dura mucho más que uno comercial. ¿Te lo apartas y te lo pago en 2 partes?" },
-  { objection: "Lo voy a pensar", response: "Claro que sí 😊 Solo te comento que estos importados se van rápido porque llegan poquitos. Si decides mañana con gusto te ayudo pero no te garantizo que haya. ¿Qué es lo que te genera duda?" },
-];
-
 const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onComplete, onNavigateNext }: Day1FlowProps) => {
   const { toast } = useToast();
-  const [step, setStep] = useState(0); // 0-4
+  const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [showCelebration, setShowCelebration] = useState(false);
 
@@ -62,17 +33,12 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
   const [gridAssets, setGridAssets] = useState<Record<number, { url: string; fileName: string } | null>>({});
   const [gridUploading, setGridUploading] = useState<number | null>(null);
   const gridInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
-  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
-  const [lightboxAlt, setLightboxAlt] = useState("");
 
   // Carousel assets (5 slots)
   const [carouselAssets, setCarouselAssets] = useState<Record<number, { url: string; fileName: string } | null>>({});
   const [carouselUploading, setCarouselUploading] = useState<number | null>(null);
   const carouselInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const [carouselIndex, setCarouselIndex] = useState(0);
-
-  // Opener tabs
-  const [openerTab, setOpenerTab] = useState<"cold" | "warm" | "hot">("cold");
 
   // Load assets from supabase
   useEffect(() => {
@@ -146,16 +112,10 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
         a.click();
         URL.revokeObjectURL(blobUrl);
       }
-    } catch (e) {
+    } catch {
       // user cancelled share
     }
   }, []);
-
-  const copyText = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast({ title: "Copiado ✓", duration: 2000 });
-    });
-  };
 
   const goNext = () => {
     if (step < TOTAL_STEPS - 1) {
@@ -171,6 +131,12 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
       setStep(step - 1);
       window.scrollTo(0, 0);
     }
+  };
+
+  const goToStep = (s: number) => {
+    setDirection(s > step ? "right" : "left");
+    setStep(s);
+    window.scrollTo(0, 0);
   };
 
   const handleComplete = () => {
@@ -193,7 +159,6 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
           onDone={handleCelebrationDone}
         />
       )}
-      <ImageLightbox src={lightboxSrc} alt={lightboxAlt} onClose={() => setLightboxSrc(null)} />
 
       {/* Top bar */}
       <div className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3 space-y-2">
@@ -230,7 +195,6 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
               inputRefs={gridInputRefs}
               onUpload={(file, idx) => uploadAsset(file, `grid_${idx}`, idx, setGridAssets, setGridUploading)}
               onRemove={(idx) => removeAsset(`grid_${idx}`, idx, setGridAssets, gridAssets)}
-              onImageClick={(url, alt) => { setLightboxSrc(url); setLightboxAlt(alt); }}
             />
           )}
           {step === 2 && (
@@ -243,6 +207,7 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
               onIndexChange={setCarouselIndex}
               onUpload={(file, idx) => uploadAsset(file, `carousel_${idx}`, idx, setCarouselAssets, setCarouselUploading)}
               onRemove={(idx) => removeAsset(`carousel_${idx}`, idx, setCarouselAssets, carouselAssets)}
+              onShare={shareOrDownload}
               onAdvance={goNext}
             />
           )}
@@ -254,11 +219,9 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
           )}
           {step === 4 && (
             <StepSummary
-              openerTab={openerTab}
-              onOpenerTabChange={setOpenerTab}
-              onCopy={copyText}
               completed={completed}
               onComplete={handleComplete}
+              onBackToImages={() => goToStep(2)}
             />
           )}
         </div>
@@ -279,7 +242,7 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
             style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
             onClick={goNext}
           >
-            Siguiente <ChevronRight className="w-4 h-4 ml-1" />
+            {step === TOTAL_STEPS - 2 ? "Ver resumen" : "Siguiente"} <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         ) : (
           <div className="flex-1" />
@@ -299,13 +262,13 @@ const Step1Mission = () => (
     <p className="text-base text-muted-foreground leading-relaxed max-w-sm">
       Un carrusel bien armado hace que más gente vea tus productos, reaccione, y te pregunte. Tú subes las imágenes — el estado hace el trabajo.
     </p>
-    <p className="text-sm italic max-w-xs" style={{ color: "hsl(330 85% 55%)" }}>
+    <p className="text-sm italic max-w-xs" style={{ color: "hsl(330, 85%, 55%)" }}>
       "No necesitas convencer a nadie — solo necesitas aparecer."
     </p>
   </div>
 );
 
-/* ========== STEP 2 — Products grid ========== */
+/* ========== STEP 2 — Products grid with lightbox banner ========== */
 interface Step2Props {
   assets: Record<number, { url: string; fileName: string } | null>;
   uploading: number | null;
@@ -313,74 +276,139 @@ interface Step2Props {
   inputRefs: React.MutableRefObject<Record<number, HTMLInputElement | null>>;
   onUpload: (file: File, idx: number) => void;
   onRemove: (idx: number) => void;
-  onImageClick: (url: string, alt: string) => void;
 }
 
-const Step2Products = ({ assets, uploading, isAdmin, inputRefs, onUpload, onRemove, onImageClick }: Step2Props) => (
-  <div className="space-y-5 py-6">
-    <div className="text-center space-y-2">
-      <h1 className="font-display text-2xl font-bold text-foreground">Los looks de hoy</h1>
-      <p className="text-sm text-muted-foreground">Toca cualquier imagen para verla completa</p>
-    </div>
-    <div className="grid grid-cols-3 gap-2">
-      {Array.from({ length: 12 }, (_, i) => {
-        const asset = assets[i];
-        const isUploading = uploading === i;
-        return (
-          <div key={i} className="relative aspect-[3/4] rounded-lg overflow-hidden">
-            {isUploading ? (
-              <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.3), hsl(275 65% 50% / 0.3))" }}>
-                <Loader2 className="w-6 h-6 text-white animate-spin" />
-              </div>
-            ) : asset ? (
-              <>
-                <img
-                  src={asset.url}
-                  alt={`Producto ${i + 1}`}
-                  className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all"
-                  onClick={() => onImageClick(asset.url, `Producto ${i + 1}`)}
-                />
-                {isAdmin && (
-                  <button
-                    onClick={() => onRemove(i)}
-                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
-              </>
-            ) : (
-              <div
-                className="w-full h-full flex flex-col items-center justify-center gap-1 cursor-pointer"
-                style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.15), hsl(275 65% 50% / 0.15))" }}
-                onClick={() => isAdmin && inputRefs.current[i]?.click()}
-              >
-                {isAdmin ? (
-                  <Upload className="w-4 h-4 text-muted-foreground" />
-                ) : (
-                  <ImageIcon className="w-4 h-4 text-muted-foreground/50" />
-                )}
-                <span className="text-[9px] text-muted-foreground">{i + 1}</span>
-              </div>
-            )}
-            <input
-              ref={(el) => { inputRefs.current[i] = el; }}
-              type="file"
-              accept=".jpg,.jpeg,.png,.webp"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) { onUpload(f, i); e.target.value = ""; }
-              }}
-            />
-          </div>
-        );
-      })}
-    </div>
-  </div>
-);
+// Product metadata placeholders for lightbox banner
+const PRODUCT_META: Record<number, { id: string; description: string }> = {
+  0: { id: "ID-001", description: "Producto importado" },
+  1: { id: "ID-002", description: "Producto importado" },
+  2: { id: "ID-003", description: "Producto importado" },
+  3: { id: "ID-004", description: "Producto importado" },
+  4: { id: "ID-005", description: "Producto importado" },
+  5: { id: "ID-006", description: "Producto importado" },
+  6: { id: "ID-007", description: "Producto importado" },
+  7: { id: "ID-008", description: "Producto importado" },
+  8: { id: "ID-009", description: "Producto importado" },
+  9: { id: "ID-010", description: "Producto importado" },
+  10: { id: "ID-011", description: "Producto importado" },
+  11: { id: "ID-012", description: "Producto importado" },
+};
 
-/* ========== STEP 3 — Carousel viewer ========== */
+const Step2Products = ({ assets, uploading, isAdmin, inputRefs, onUpload, onRemove }: Step2Props) => {
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") setLightboxIdx(null);
+  }, []);
+
+  useEffect(() => {
+    if (lightboxIdx !== null) {
+      document.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [lightboxIdx, handleKeyDown]);
+
+  const lightboxAsset = lightboxIdx !== null ? assets[lightboxIdx] : null;
+  const lightboxMeta = lightboxIdx !== null ? PRODUCT_META[lightboxIdx] : null;
+
+  return (
+    <div className="space-y-5 py-6">
+      <div className="text-center space-y-2">
+        <h1 className="font-display text-2xl font-bold text-foreground">Los productos de hoy</h1>
+        <p className="text-sm text-muted-foreground">Toca cualquier imagen para verla completa</p>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {Array.from({ length: 12 }, (_, i) => {
+          const asset = assets[i];
+          const isUploading = uploading === i;
+          return (
+            <div key={i} className="relative aspect-[3/4] rounded-lg overflow-hidden">
+              {isUploading ? (
+                <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.3), hsl(275 65% 50% / 0.3))" }}>
+                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                </div>
+              ) : asset ? (
+                <>
+                  <img
+                    src={asset.url}
+                    alt={`Producto ${i + 1}`}
+                    className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all"
+                    onClick={() => setLightboxIdx(i)}
+                  />
+                  {isAdmin && (
+                    <button
+                      onClick={() => onRemove(i)}
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div
+                  className="w-full h-full flex flex-col items-center justify-center gap-1 cursor-pointer"
+                  style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.15), hsl(275 65% 50% / 0.15))" }}
+                  onClick={() => isAdmin && inputRefs.current[i]?.click()}
+                >
+                  {isAdmin ? (
+                    <Upload className="w-4 h-4 text-muted-foreground" />
+                  ) : (
+                    <ImageIcon className="w-4 h-4 text-muted-foreground/50" />
+                  )}
+                  <span className="text-[9px] text-muted-foreground">{i + 1}</span>
+                </div>
+              )}
+              <input
+                ref={(el) => { inputRefs.current[i] = el; }}
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) { onUpload(f, i); e.target.value = ""; }
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Full-screen lightbox with product banner */}
+      {lightboxIdx !== null && lightboxAsset && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
+          onClick={() => setLightboxIdx(null)}
+        >
+          <button
+            onClick={() => setLightboxIdx(null)}
+            className="absolute top-4 right-4 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors z-10"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          <div className="relative max-h-[85vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={lightboxAsset.url}
+              alt={`Producto ${lightboxIdx + 1}`}
+              className="max-h-[85vh] max-w-[90vw] object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-300"
+            />
+            {/* Product banner (cenefa) */}
+            <div className="absolute bottom-0 left-0 right-0 bg-black/70 backdrop-blur-sm rounded-b-xl px-4 py-3">
+              <p className="text-white font-bold text-sm">{lightboxMeta?.id}</p>
+              <p className="text-white/80 text-xs">{lightboxMeta?.description}</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ========== STEP 3 — Carousel with numbered badges and share flow ========== */
 interface Step3Props {
   assets: Record<number, { url: string; fileName: string } | null>;
   uploading: number | null;
@@ -390,90 +418,125 @@ interface Step3Props {
   onIndexChange: (i: number) => void;
   onUpload: (file: File, idx: number) => void;
   onRemove: (idx: number) => void;
+  onShare: (url: string, fileName: string) => void;
   onAdvance: () => void;
 }
 
-const Step3Carousel = ({ assets, uploading, isAdmin, inputRefs, activeIndex, onIndexChange, onUpload, onRemove, onAdvance }: Step3Props) => {
+const Step3Carousel = ({ assets, uploading, isAdmin, inputRefs, activeIndex, onIndexChange, onUpload, onRemove, onShare, onAdvance }: Step3Props) => {
   const total = 5;
   const asset = assets[activeIndex];
   const isUploading = uploading === activeIndex;
   const isLast = activeIndex === total - 1;
+  const [showFullScreen, setShowFullScreen] = useState(false);
+  const [showSharePopup, setShowSharePopup] = useState(false);
+
+  const handleShare = (url: string, fileName: string) => {
+    onShare(url, fileName);
+    setShowSharePopup(true);
+    setTimeout(() => setShowSharePopup(false), 3000);
+  };
 
   return (
     <div className="space-y-5 py-6">
       <div className="text-center space-y-2">
         <h1 className="font-display text-2xl font-bold text-foreground">Tus 5 imágenes para el carrusel</h1>
-        <p className="text-sm text-muted-foreground">Revísalas una por una — estas son las que vas a subir hoy</p>
       </div>
 
-      {/* Single image viewer */}
-      <div className="relative aspect-[9/16] w-full max-w-xs mx-auto rounded-2xl overflow-hidden">
-        {isUploading ? (
-          <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.3), hsl(275 65% 50% / 0.3))" }}>
-            <Loader2 className="w-8 h-8 text-white animate-spin" />
-          </div>
-        ) : asset ? (
-          <>
-            <img src={asset.url} alt={`Carrusel ${activeIndex + 1}`} className="w-full h-full object-cover" />
-            {isAdmin && (
-              <>
-                <button onClick={() => inputRefs.current[activeIndex]?.click()} className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80">
-                  <Upload className="w-4 h-4" />
-                </button>
-                <button onClick={() => onRemove(activeIndex)} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80">
-                  <X className="w-4 h-4" />
-                </button>
-              </>
-            )}
-          </>
-        ) : (
-          <div
-            className="w-full h-full flex flex-col items-center justify-center gap-2"
-            style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.25), hsl(275 65% 50% / 0.25))" }}
-            onClick={() => isAdmin && inputRefs.current[activeIndex]?.click()}
-          >
-            {isAdmin ? (
-              <>
-                <Upload className="w-8 h-8 text-white/70" />
-                <span className="text-sm text-white/70 font-medium">Subir imagen {activeIndex + 1}</span>
-              </>
-            ) : (
-              <>
-                <ImageIcon className="w-8 h-8 text-white/40" />
-                <span className="text-sm text-white/50">Imagen {activeIndex + 1}</span>
-              </>
-            )}
-          </div>
-        )}
-        <input
-          ref={(el) => { inputRefs.current[activeIndex] = el; }}
-          type="file"
-          accept=".jpg,.jpeg,.png,.webp"
-          className="hidden"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) { onUpload(f, activeIndex); e.target.value = ""; }
-          }}
-        />
+      {/* Grid of 5 slots with numbered badges */}
+      <div className="grid grid-cols-3 gap-2">
+        {Array.from({ length: total }, (_, i) => {
+          const slotAsset = assets[i];
+          const slotUploading = uploading === i;
+          return (
+            <div
+              key={i}
+              className={cn(
+                "relative aspect-[3/4] rounded-lg overflow-hidden cursor-pointer border-2 transition-all",
+                i === activeIndex ? "border-primary ring-2 ring-primary/30" : "border-transparent"
+              )}
+              onClick={() => onIndexChange(i)}
+            >
+              {/* Numbered badge */}
+              <div
+                className="absolute top-1.5 left-1.5 z-10 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg"
+                style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+              >
+                {i + 1}
+              </div>
 
-        {/* Nav arrows */}
-        {activeIndex > 0 && (
-          <button
-            onClick={() => onIndexChange(activeIndex - 1)}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-        )}
-        {activeIndex < total - 1 && (
-          <button
-            onClick={() => onIndexChange(activeIndex + 1)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        )}
+              {slotUploading ? (
+                <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.3), hsl(275 65% 50% / 0.3))" }}>
+                  <Loader2 className="w-5 h-5 text-white animate-spin" />
+                </div>
+              ) : slotAsset ? (
+                <>
+                  <img src={slotAsset.url} alt={`Imagen ${i + 1}`} className="w-full h-full object-cover" />
+                  {isAdmin && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onRemove(i); }}
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div
+                  className="w-full h-full flex flex-col items-center justify-center gap-1"
+                  style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.15), hsl(275 65% 50% / 0.15))" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isAdmin) inputRefs.current[i]?.click();
+                  }}
+                >
+                  {isAdmin ? (
+                    <Upload className="w-4 h-4 text-muted-foreground" />
+                  ) : (
+                    <ImageIcon className="w-4 h-4 text-muted-foreground/50" />
+                  )}
+                </div>
+              )}
+              <input
+                ref={(el) => { inputRefs.current[i] = el; }}
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) { onUpload(f, i); e.target.value = ""; }
+                }}
+              />
+            </div>
+          );
+        })}
       </div>
+
+      {/* Instruction: Abre la imagen */}
+      {asset && (
+        <div className="flex items-center justify-center gap-2 text-muted-foreground">
+          <Hand className="w-4 h-4" />
+          <span className="text-sm font-medium">Abre la imagen</span>
+          <span className="text-lg">👆</span>
+        </div>
+      )}
+
+      {/* Selected image preview */}
+      {asset && (
+        <div
+          className="relative aspect-[9/16] w-full max-w-xs mx-auto rounded-2xl overflow-hidden cursor-pointer"
+          onClick={() => setShowFullScreen(true)}
+        >
+          <img src={asset.url} alt={`Imagen ${activeIndex + 1}`} className="w-full h-full object-cover" />
+          {isAdmin && (
+            <button
+              onClick={(e) => { e.stopPropagation(); inputRefs.current[activeIndex]?.click(); }}
+              className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
+            >
+              <Upload className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Dot indicators */}
       <div className="flex items-center justify-center gap-2">
@@ -483,9 +546,7 @@ const Step3Carousel = ({ assets, uploading, isAdmin, inputRefs, activeIndex, onI
             onClick={() => onIndexChange(i)}
             className={cn(
               "w-2.5 h-2.5 rounded-full transition-all",
-              i === activeIndex
-                ? "scale-125"
-                : "bg-muted-foreground/30"
+              i === activeIndex ? "scale-125" : "bg-muted-foreground/30"
             )}
             style={i === activeIndex ? { background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" } : {}}
           />
@@ -501,6 +562,60 @@ const Step3Carousel = ({ assets, uploading, isAdmin, inputRefs, activeIndex, onI
         >
           Listo — ¿cómo las subo? →
         </Button>
+      )}
+
+      {/* Full-screen lightbox with share button */}
+      {showFullScreen && asset && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm animate-in fade-in duration-300"
+          onClick={() => setShowFullScreen(false)}
+        >
+          <button
+            onClick={() => setShowFullScreen(false)}
+            className="absolute top-4 right-4 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors z-10"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          <img
+            src={asset.url}
+            alt={`Imagen ${activeIndex + 1}`}
+            className="max-h-[75vh] max-w-[90vw] object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Pulsing share button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleShare(asset.url, asset.fileName);
+            }}
+            className="mt-6 flex items-center gap-2 text-white font-bold text-base px-8 py-3.5 rounded-full shadow-xl animate-pulse"
+            style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+          >
+            <Share2 className="w-5 h-5" /> Compartir 📤
+          </button>
+
+          {/* Share popup with instructions */}
+          {showSharePopup && (
+            <div
+              className="absolute bottom-32 left-1/2 -translate-x-1/2 bg-white rounded-2xl px-6 py-4 shadow-2xl animate-in zoom-in-95 fade-in duration-300 space-y-2 min-w-[240px]"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowSharePopup(false);
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <span className="w-7 h-7 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-bold">1</span>
+                <p className="text-sm font-medium text-gray-800">Elige WhatsApp</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-7 h-7 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-bold">2</span>
+                <p className="text-sm font-medium text-gray-800">Toca Mi Estado</p>
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
@@ -541,7 +656,14 @@ const Step4Upload = ({ assets, onShare }: Step4Props) => (
         const asset = assets[i];
         return (
           <div key={i} className="space-y-1.5">
-            <div className="aspect-[3/4] rounded-lg overflow-hidden">
+            <div className="aspect-[3/4] rounded-lg overflow-hidden relative">
+              {/* Numbered badge */}
+              <div
+                className="absolute top-1.5 left-1.5 z-10 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg"
+                style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+              >
+                {i + 1}
+              </div>
               {asset ? (
                 <img src={asset.url} alt={`Imagen ${i + 1}`} className="w-full h-full object-cover" />
               ) : (
@@ -584,102 +706,41 @@ const Step4Upload = ({ assets, onShare }: Step4Props) => (
   </div>
 );
 
-/* ========== STEP 5 — Summary ========== */
+/* ========== STEP 5 — Summary (Confirmation) ========== */
 interface SummaryProps {
-  openerTab: "cold" | "warm" | "hot";
-  onOpenerTabChange: (t: "cold" | "warm" | "hot") => void;
-  onCopy: (text: string) => void;
   completed: boolean;
   onComplete: () => void;
+  onBackToImages: () => void;
 }
 
-const StepSummary = ({ openerTab, onOpenerTabChange, onCopy, completed, onComplete }: SummaryProps) => {
-  const tabs = [
-    { key: "cold" as const, label: "🥶 +60 días", color: "bg-blue-500/10 border-blue-400/50 text-blue-700 dark:text-blue-300" },
-    { key: "warm" as const, label: "😊 15-60 días", color: "bg-amber-500/10 border-amber-400/50 text-amber-700 dark:text-amber-300" },
-    { key: "hot" as const, label: "🔥 -15 días", color: "bg-red-500/10 border-red-400/50 text-red-700 dark:text-red-300" },
-  ];
-
+const StepSummary = ({ completed, onComplete, onBackToImages }: SummaryProps) => {
   return (
-    <div className="space-y-8 py-6">
-      {/* Checklist */}
-      <div className="space-y-3">
-        <h2 className="font-display text-xl font-bold text-foreground">Lo que haces hoy</h2>
-        {[
-          "Sube las 5 imágenes a tu estado",
-          "Espera reacciones y preguntas",
-          "A quien pregunte mándale el abridor",
-        ].map((item, i) => (
-          <div key={i} className="flex items-center gap-3 rounded-xl p-3 border border-border bg-card">
-            <span className="text-lg">☐</span>
-            <span className="text-sm text-foreground">{item}</span>
-          </div>
-        ))}
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 py-8">
+      <p className="text-5xl">📱</p>
+      <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground leading-tight">
+        ¿Ya subiste todas las imágenes?
+      </h1>
 
-      {/* Openers */}
-      <div className="space-y-3">
-        <h2 className="font-display text-xl font-bold text-foreground">Tus abridores</h2>
-        <div className="flex gap-2">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => onOpenerTabChange(t.key)}
-              className={cn(
-                "flex-1 text-xs font-semibold py-2 rounded-lg border transition-all",
-                openerTab === t.key ? t.color : "bg-muted/30 border-border text-muted-foreground"
-              )}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-        <div className="space-y-2">
-          {GENERIC_OPENERS[openerTab].map((msg, i) => (
-            <div key={i} className="rounded-xl border border-border p-3 space-y-2">
-              <p className="text-sm text-foreground leading-relaxed">"{msg}"</p>
-              <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => onCopy(msg)}>
-                <Copy className="w-3 h-3 mr-1" /> Copiar
-              </Button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Objections */}
-      <div className="space-y-3">
-        <h2 className="font-display text-xl font-bold text-foreground">Si te preguntan el precio</h2>
-        <Accordion type="single" collapsible className="space-y-2">
-          {PLACEHOLDER_OBJECTIONS.map((obj, i) => (
-            <AccordionItem key={i} value={`obj-${i}`} className="border rounded-xl px-3">
-              <AccordionTrigger className="text-sm font-medium text-foreground py-3 hover:no-underline">
-                "{obj.objection}"
-              </AccordionTrigger>
-              <AccordionContent className="pb-3 space-y-2">
-                <p className="text-sm text-muted-foreground">{obj.response}</p>
-                <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => onCopy(obj.response)}>
-                  <Copy className="w-3 h-3 mr-1" /> Copiar
-                </Button>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </div>
-
-      {/* Complete button */}
       {!completed ? (
-        <Button
-          className="w-full text-base py-6 text-white font-bold"
-          style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
-          onClick={onComplete}
-        >
-          ✅ Marcar día completado
-        </Button>
+        <div className="w-full max-w-xs space-y-3">
+          <Button
+            className="w-full text-base py-6 text-white font-bold"
+            style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+            onClick={onComplete}
+          >
+            ✅ Sí, ya las subí
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full text-base py-6 border-muted-foreground/30 text-muted-foreground"
+            onClick={onBackToImages}
+          >
+            ← Volver a las imágenes
+          </Button>
+        </div>
       ) : (
-        <div className="text-center py-4">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 dark:bg-emerald-950/40 px-5 py-3 text-emerald-700 dark:text-emerald-400 font-semibold text-sm">
-            <Check className="w-5 h-5" /> Día completado
-          </div>
+        <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 dark:bg-emerald-950/40 px-5 py-3 text-emerald-700 dark:text-emerald-400 font-semibold text-sm">
+          ✅ Día completado
         </div>
       )}
     </div>
