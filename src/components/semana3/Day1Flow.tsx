@@ -249,13 +249,10 @@ interface Step2Props {
   uploading: number | null;
   isAdmin?: boolean;
   inputRefs: React.MutableRefObject<Record<number, HTMLInputElement | null>>;
+  campaignId: string;
   onUpload: (file: File, idx: number) => void;
   onRemove: (idx: number) => void;
 }
-
-const PRODUCT_META: Record<number, { id: string; description: string }> = Object.fromEntries(
-  Array.from({ length: 12 }, (_, i) => [i, { id: `ID-${String(i + 1).padStart(3, "0")}`, description: "Producto importado" }])
-);
 
 const Step2Products = ({ assets, uploading, isAdmin, inputRefs, onUpload, onRemove }: Step2Props) => {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
