@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { ProductMetaInputs, ProductMetaOverlay } from "./ProductMetaFields";
 
+const TOTAL_STEPS = 4;
+
 interface Day1FlowProps {
   campaignId: string;
   campaignTitle: string;
