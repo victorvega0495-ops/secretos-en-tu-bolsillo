@@ -54,6 +54,8 @@ export type Database = {
           day_number: number
           file_name: string
           id: string
+          product_description: string | null
+          product_id: string | null
           storage_url: string
           updated_at: string
         }
@@ -63,6 +65,8 @@ export type Database = {
           day_number: number
           file_name?: string
           id?: string
+          product_description?: string | null
+          product_id?: string | null
           storage_url: string
           updated_at?: string
         }
@@ -72,6 +76,8 @@ export type Database = {
           day_number?: number
           file_name?: string
           id?: string
+          product_description?: string | null
+          product_id?: string | null
           storage_url?: string
           updated_at?: string
         }

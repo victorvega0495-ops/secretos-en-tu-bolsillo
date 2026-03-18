@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { ProductMetaInputs, ProductMetaOverlay } from "./ProductMetaFields";
 
 interface Day1FlowProps {
   campaignId: string;
@@ -177,6 +178,7 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
           {step === 1 && (
             <Step2Products
               assets={gridAssets} uploading={gridUploading} isAdmin={isAdmin} inputRefs={gridInputRefs}
+              campaignId={campaignId}
               onUpload={(file, idx) => uploadAsset(file, `grid_${idx}`, idx, setGridAssets, setGridUploading)}
               onRemove={(idx) => removeAsset(`grid_${idx}`, idx, setGridAssets, gridAssets)}
             />
@@ -184,7 +186,7 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
           {step === 2 && (
             <Step3Slider
               assets={carouselAssets} uploading={carouselUploading} isAdmin={isAdmin} inputRefs={carouselInputRefs}
-              activeIndex={carouselIndex} onIndexChange={setCarouselIndex}
+              campaignId={campaignId} activeIndex={carouselIndex} onIndexChange={setCarouselIndex}
               onUpload={(file, idx) => uploadAsset(file, `carousel_${idx}`, idx, setCarouselAssets, setCarouselUploading)}
               onRemove={(idx) => removeAsset(`carousel_${idx}`, idx, setCarouselAssets, carouselAssets)}
               onShare={shareOrDownload}
@@ -248,15 +250,12 @@ interface Step2Props {
   uploading: number | null;
   isAdmin?: boolean;
   inputRefs: React.MutableRefObject<Record<number, HTMLInputElement | null>>;
+  campaignId: string;
   onUpload: (file: File, idx: number) => void;
   onRemove: (idx: number) => void;
 }
 
-const PRODUCT_META: Record<number, { id: string; description: string }> = Object.fromEntries(
-  Array.from({ length: 12 }, (_, i) => [i, { id: `ID-${String(i + 1).padStart(3, "0")}`, description: "Producto importado" }])
-);
-
-const Step2Products = ({ assets, uploading, isAdmin, inputRefs, onUpload, onRemove }: Step2Props) => {
+const Step2Products = ({ assets, uploading, isAdmin, inputRefs, campaignId, onUpload, onRemove }: Step2Props) => {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
   useEffect(() => {
@@ -268,7 +267,6 @@ const Step2Products = ({ assets, uploading, isAdmin, inputRefs, onUpload, onRemo
   }, [lightboxIdx]);
 
   const lightboxAsset = lightboxIdx !== null ? assets[lightboxIdx] : null;
-  const lightboxMeta = lightboxIdx !== null ? PRODUCT_META[lightboxIdx] : null;
 
   return (
     <div className="space-y-5 py-6">
@@ -280,33 +278,38 @@ const Step2Products = ({ assets, uploading, isAdmin, inputRefs, onUpload, onRemo
         {Array.from({ length: 12 }, (_, i) => {
           const asset = assets[i];
           const isUploading = uploading === i;
+          const assetType = `grid_${i}`;
           return (
-            <div key={i} className="relative aspect-[3/4] rounded-lg overflow-hidden">
-              {isUploading ? (
-                <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.3), hsl(275 65% 50% / 0.3))" }}>
-                  <Loader2 className="w-6 h-6 text-white animate-spin" />
-                </div>
-              ) : asset ? (
-                <>
-                  <img src={asset.url} alt={`Producto ${i + 1}`} className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all" onClick={() => setLightboxIdx(i)} />
-                  {isAdmin && (
-                    <button onClick={() => onRemove(i)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80">
-                      <X className="w-3 h-3" />
-                    </button>
-                  )}
-                </>
-              ) : (
-                <div
-                  className="w-full h-full flex flex-col items-center justify-center gap-1 cursor-pointer"
-                  style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.15), hsl(275 65% 50% / 0.15))" }}
-                  onClick={() => isAdmin && inputRefs.current[i]?.click()}
-                >
-                  {isAdmin ? <Upload className="w-4 h-4 text-muted-foreground" /> : <ImageIcon className="w-4 h-4 text-muted-foreground/50" />}
-                  <span className="text-[9px] text-muted-foreground">{i + 1}</span>
-                </div>
-              )}
-              <input ref={(el) => { inputRefs.current[i] = el; }} type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) { onUpload(f, i); e.target.value = ""; } }} />
+            <div key={i}>
+              <div className="relative aspect-[3/4] rounded-lg overflow-hidden">
+                {isUploading ? (
+                  <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.3), hsl(275 65% 50% / 0.3))" }}>
+                    <Loader2 className="w-6 h-6 text-white animate-spin" />
+                  </div>
+                ) : asset ? (
+                  <>
+                    <img src={asset.url} alt={`Producto ${i + 1}`} className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all" onClick={() => setLightboxIdx(i)} />
+                    {!isAdmin && <ProductMetaOverlay campaignId={campaignId} dayNumber={DAY} assetType={assetType} />}
+                    {isAdmin && (
+                      <button onClick={() => onRemove(i)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80">
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div
+                    className="w-full h-full flex flex-col items-center justify-center gap-1 cursor-pointer"
+                    style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.15), hsl(275 65% 50% / 0.15))" }}
+                    onClick={() => isAdmin && inputRefs.current[i]?.click()}
+                  >
+                    {isAdmin ? <Upload className="w-4 h-4 text-muted-foreground" /> : <ImageIcon className="w-4 h-4 text-muted-foreground/50" />}
+                    <span className="text-[9px] text-muted-foreground">{i + 1}</span>
+                  </div>
+                )}
+                <input ref={(el) => { inputRefs.current[i] = el; }} type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) { onUpload(f, i); e.target.value = ""; } }} />
+              </div>
+              {isAdmin && <ProductMetaInputs campaignId={campaignId} dayNumber={DAY} assetType={assetType} />}
             </div>
           );
         })}
@@ -320,10 +323,7 @@ const Step2Products = ({ assets, uploading, isAdmin, inputRefs, onUpload, onRemo
           </button>
           <div className="relative max-h-[85vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
             <img src={lightboxAsset.url} alt={`Producto ${lightboxIdx + 1}`} className="max-h-[85vh] max-w-[90vw] object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-300" />
-            <div className="absolute bottom-0 left-0 right-0 bg-black/70 backdrop-blur-sm rounded-b-xl px-4 py-3">
-              <p className="text-white font-bold text-sm">{lightboxMeta?.id}</p>
-              <p className="text-white/80 text-xs">{lightboxMeta?.description}</p>
-            </div>
+            <ProductMetaOverlay campaignId={campaignId} dayNumber={DAY} assetType={`grid_${lightboxIdx}`} />
           </div>
         </div>
       )}
@@ -337,6 +337,7 @@ interface Step3Props {
   uploading: number | null;
   isAdmin?: boolean;
   inputRefs: React.MutableRefObject<Record<number, HTMLInputElement | null>>;
+  campaignId: string;
   activeIndex: number;
   onIndexChange: (i: number) => void;
   onUpload: (file: File, idx: number) => void;
@@ -344,7 +345,7 @@ interface Step3Props {
   onShare: (url: string, fileName: string) => void;
 }
 
-const Step3Slider = ({ assets, uploading, isAdmin, inputRefs, activeIndex, onIndexChange, onUpload, onRemove, onShare }: Step3Props) => {
+const Step3Slider = ({ assets, uploading, isAdmin, inputRefs, campaignId, activeIndex, onIndexChange, onUpload, onRemove, onShare }: Step3Props) => {
   const total = 5;
   const asset = assets[activeIndex];
   const isUploading = uploading === activeIndex;
@@ -406,11 +407,14 @@ const Step3Slider = ({ assets, uploading, isAdmin, inputRefs, activeIndex, onInd
             <Loader2 className="w-8 h-8 text-white animate-spin" />
           </div>
         ) : asset ? (
-          <img
-            src={asset.url}
-            alt={`Imagen ${activeIndex + 1}`}
-            className="w-full max-h-[55vh] object-contain animate-in fade-in duration-200"
-          />
+          <div className="relative w-full">
+            <img
+              src={asset.url}
+              alt={`Imagen ${activeIndex + 1}`}
+              className="w-full max-h-[55vh] object-contain animate-in fade-in duration-200"
+            />
+            {!isAdmin && <ProductMetaOverlay campaignId={campaignId} dayNumber={DAY} assetType={`carousel_${activeIndex}`} />}
+          </div>
         ) : (
           <div
             className="w-full aspect-[9/16] max-h-[55vh] flex flex-col items-center justify-center gap-2 rounded-2xl mx-5 cursor-pointer"
@@ -440,7 +444,14 @@ const Step3Slider = ({ assets, uploading, isAdmin, inputRefs, activeIndex, onInd
         </button>
       )}
 
-      {/* Dot indicators */}
+      {/* Admin meta inputs */}
+      {isAdmin && (
+        <div className="px-5 w-full max-w-sm mt-3">
+          <ProductMetaInputs campaignId={campaignId} dayNumber={DAY} assetType={`carousel_${activeIndex}`} />
+        </div>
+      )}
+
+
       <div className="flex items-center justify-center gap-2.5 mt-5">
         {Array.from({ length: total }, (_, i) => (
           <button

@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { ProductMetaInputs, ProductMetaOverlay } from "./ProductMetaFields";
 
 interface Day2FlowProps {
   campaignId: string;
@@ -187,6 +188,7 @@ const Day2Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
               assets={videoAssets}
               uploading={videoUploading}
               isAdmin={isAdmin}
+              campaignId={campaignId}
               inputRefs={videoInputRefs}
               activeIndex={videoIndex}
               onIndexChange={setVideoIndex}
@@ -210,6 +212,7 @@ const Day2Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
               assets={imageAssets}
               uploading={imageUploading}
               isAdmin={isAdmin}
+              campaignId={campaignId}
               inputRefs={imageInputRefs}
               activeIndex={imageIndex}
               onIndexChange={setImageIndex}
@@ -281,6 +284,7 @@ interface MediaSliderProps {
   assets: Record<number, { url: string; fileName: string } | null>;
   uploading: number | null;
   isAdmin?: boolean;
+  campaignId: string;
   inputRefs: React.MutableRefObject<Record<number, HTMLInputElement | null>>;
   activeIndex: number;
   onIndexChange: (i: number) => void;
@@ -292,13 +296,14 @@ interface MediaSliderProps {
 }
 
 const MediaSlider = ({
-  type, title, instruction, totalSlots, assets, uploading, isAdmin, inputRefs,
+  type, title, instruction, totalSlots, assets, uploading, isAdmin, campaignId, inputRefs,
   activeIndex, onIndexChange, onUpload, onRemove, onShare, onDownload, inspirationMessages
 }: MediaSliderProps) => {
   const asset = assets[activeIndex];
   const isUploading = uploading === activeIndex;
   const acceptTypes = type === "video" ? ".mp4,.mov,.webm,.avi" : ".jpg,.jpeg,.png,.webp";
   const IconComponent = type === "video" ? Film : ImageIcon;
+  const slotAssetType = type === "video" ? `video_${activeIndex}` : `image_${activeIndex}`;
 
   const goPrev = () => { if (activeIndex > 0) onIndexChange(activeIndex - 1); };
   const goNext = () => { if (activeIndex < totalSlots - 1) onIndexChange(activeIndex + 1); };
@@ -355,20 +360,23 @@ const MediaSlider = ({
             <Loader2 className="w-8 h-8 text-white animate-spin" />
           </div>
         ) : asset ? (
-          type === "video" ? (
-            <video
-              src={asset.url}
-              controls
-              playsInline
-              className="w-full max-h-[50vh] object-contain rounded-2xl animate-in fade-in duration-200"
-            />
-          ) : (
-            <img
-              src={asset.url}
-              alt={`Imagen ${activeIndex + 1}`}
-              className="w-full max-h-[50vh] object-contain animate-in fade-in duration-200"
-            />
-          )
+          <div className="relative w-full">
+            {type === "video" ? (
+              <video
+                src={asset.url}
+                controls
+                playsInline
+                className="w-full max-h-[50vh] object-contain rounded-2xl animate-in fade-in duration-200"
+              />
+            ) : (
+              <img
+                src={asset.url}
+                alt={`Imagen ${activeIndex + 1}`}
+                className="w-full max-h-[50vh] object-contain animate-in fade-in duration-200"
+              />
+            )}
+            {!isAdmin && <ProductMetaOverlay campaignId={campaignId} dayNumber={DAY} assetType={slotAssetType} />}
+          </div>
         ) : (
           <div
             className="w-full aspect-[9/16] max-h-[50vh] flex flex-col items-center justify-center gap-2 rounded-2xl mx-5 cursor-pointer"
@@ -406,7 +414,14 @@ const MediaSlider = ({
         </div>
       )}
 
-      {/* Dot indicators */}
+      {/* Admin meta inputs */}
+      {isAdmin && (
+        <div className="px-5 w-full max-w-sm mt-3">
+          <ProductMetaInputs campaignId={campaignId} dayNumber={DAY} assetType={slotAssetType} />
+        </div>
+      )}
+
+
       <div className="flex items-center justify-center gap-2.5 mt-5">
         {Array.from({ length: totalSlots }, (_, i) => (
           <button
