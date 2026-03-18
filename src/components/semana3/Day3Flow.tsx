@@ -198,6 +198,7 @@ const Day3Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
                 "Oye, tú que siempre andas en el gym — mira lo que acaba de llegar, está padrísimo 💪",
                 "¿Buscas algo nuevo para entrenar? Mira esto — te va a encantar el diseño 😍"
               ]}
+              messageSection="video_ideas"
             />
           )}
           {step === 2 && (
