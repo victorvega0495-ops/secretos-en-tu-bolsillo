@@ -414,7 +414,14 @@ const MediaSlider = ({
         </div>
       )}
 
-      {/* Dot indicators */}
+      {/* Admin meta inputs */}
+      {isAdmin && (
+        <div className="px-5 w-full max-w-sm mt-3">
+          <ProductMetaInputs campaignId={campaignId} dayNumber={DAY} assetType={slotAssetType} />
+        </div>
+      )}
+
+
       <div className="flex items-center justify-center gap-2.5 mt-5">
         {Array.from({ length: totalSlots }, (_, i) => (
           <button
