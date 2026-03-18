@@ -19,7 +19,6 @@ interface Day1FlowProps {
   onNavigateNext: () => void;
 }
 
-const TOTAL_STEPS = 5;
 const BUCKET = "campaign-assets";
 const DAY = 1;
 
