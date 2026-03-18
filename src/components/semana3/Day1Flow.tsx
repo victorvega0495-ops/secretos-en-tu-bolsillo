@@ -235,9 +235,10 @@ interface Step2Props {
   campaignId: string;
   onUpload: (file: File, idx: number) => void;
   onRemove: (idx: number) => void;
+  onShare: (url: string, fileName: string) => void;
 }
 
-const Step2Products = ({ assets, uploading, isAdmin, inputRefs, campaignId, onUpload, onRemove }: Step2Props) => {
+const Step2Products = ({ assets, uploading, isAdmin, inputRefs, campaignId, onUpload, onRemove, onShare }: Step2Props) => {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
   useEffect(() => {
