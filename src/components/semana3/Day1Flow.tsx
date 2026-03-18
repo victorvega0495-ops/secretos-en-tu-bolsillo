@@ -529,23 +529,41 @@ const Step4Upload = ({ assets, onShare }: Step4Props) => {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="space-y-3">
         {Array.from({ length: 5 }, (_, i) => {
           const asset = assets[i];
           return (
-            <div key={i} className="relative aspect-[3/4] rounded-lg overflow-hidden cursor-pointer" onClick={() => asset && setFullScreenIdx(i)}>
-              {/* Numbered badge */}
-              <div
-                className="absolute top-1.5 left-1.5 z-10 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg"
-                style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
-              >
-                {i + 1}
+            <div key={i} className="flex items-center gap-3">
+              <div className="relative w-20 h-24 flex-shrink-0 rounded-lg overflow-hidden cursor-pointer" onClick={() => asset && setFullScreenIdx(i)}>
+                <div
+                  className="absolute top-1 left-1 z-10 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow"
+                  style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+                >
+                  {i + 1}
+                </div>
+                {asset ? (
+                  <img src={asset.url} alt={`Imagen ${i + 1}`} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.15), hsl(275 65% 50% / 0.15))" }}>
+                    <ImageIcon className="w-4 h-4 text-muted-foreground/40" />
+                  </div>
+                )}
               </div>
-              {asset ? (
-                <img src={asset.url} alt={`Imagen ${i + 1}`} className="w-full h-full object-cover hover:brightness-90 transition-all" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.15), hsl(275 65% 50% / 0.15))" }}>
-                  <ImageIcon className="w-4 h-4 text-muted-foreground/40" />
+              {asset && (
+                <div className="flex-1 flex items-center gap-2">
+                  <button
+                    onClick={() => { try { fetch(asset.url).then(r => r.blob()).then(b => { const u = URL.createObjectURL(b); const a = document.createElement("a"); a.href = u; a.download = asset.fileName; a.click(); URL.revokeObjectURL(u); }); } catch {} }}
+                    className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2.5 rounded-xl border border-muted-foreground/30 text-foreground hover:bg-muted/50 transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" /> ⬇️ Descargar
+                  </button>
+                  <button
+                    onClick={() => handleShare(asset.url, asset.fileName)}
+                    className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold text-white py-2.5 rounded-xl shadow-lg"
+                    style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+                  >
+                    <Share2 className="w-3.5 h-3.5" /> 📤 Compartir
+                  </button>
                 </div>
               )}
             </div>
