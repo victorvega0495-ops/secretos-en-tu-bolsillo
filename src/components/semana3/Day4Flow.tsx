@@ -188,6 +188,7 @@ const Day4Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
                 "¿Viste el video que te mandé? Aquí está la foto del look familiar por si quieres verlo mejor 📸",
                 "Te dejo la imagen para que lo veas con calma — si te gusta para tu familia me dices y te lo aparto 😊"
               ]}
+              messageSection="image_ideas"
             />
           )}
           {step === 3 && (
