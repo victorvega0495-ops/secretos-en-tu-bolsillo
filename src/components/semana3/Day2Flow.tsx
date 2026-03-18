@@ -282,6 +282,7 @@ interface MediaSliderProps {
   assets: Record<number, { url: string; fileName: string } | null>;
   uploading: number | null;
   isAdmin?: boolean;
+  campaignId: string;
   inputRefs: React.MutableRefObject<Record<number, HTMLInputElement | null>>;
   activeIndex: number;
   onIndexChange: (i: number) => void;
@@ -293,7 +294,7 @@ interface MediaSliderProps {
 }
 
 const MediaSlider = ({
-  type, title, instruction, totalSlots, assets, uploading, isAdmin, inputRefs,
+  type, title, instruction, totalSlots, assets, uploading, isAdmin, campaignId, inputRefs,
   activeIndex, onIndexChange, onUpload, onRemove, onShare, onDownload, inspirationMessages
 }: MediaSliderProps) => {
   const asset = assets[activeIndex];
