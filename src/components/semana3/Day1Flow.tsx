@@ -607,52 +607,68 @@ interface SummaryProps {
   onBackToMenu: () => void;
 }
 
-const StepSummary = ({ completed, onComplete, onBackToImages, onNavigateNext, onBackToMenu }: SummaryProps) => (
-  <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 py-8">
-    <Smartphone className="w-16 h-16 text-muted-foreground" />
-    <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground leading-tight">
-      ¿Ya subiste todas las imágenes?
-    </h1>
+const StepSummary = ({ completed, onComplete, onBackToImages, onNavigateNext, onBackToMenu }: SummaryProps) => {
+  const [showPostButtons, setShowPostButtons] = useState(false);
 
-    {!completed ? (
+  // After confetti (completed flips true), fade in the post-completion buttons
+  useEffect(() => {
+    if (completed && !showPostButtons) {
+      const t = setTimeout(() => setShowPostButtons(true), 2500);
+      return () => clearTimeout(t);
+    }
+  }, [completed, showPostButtons]);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 py-8">
+      <Smartphone className="w-16 h-16 text-muted-foreground" />
+      <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground leading-tight">
+        ¿Ya subiste todas las imágenes?
+      </h1>
+
       <div className="w-full max-w-xs space-y-3">
-        <Button
-          className="w-full text-base py-6 text-white font-bold"
-          style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
-          onClick={onComplete}
-        >
-          ✅ Sí, ya las subí
-        </Button>
-        <Button
-          variant="outline"
-          className="w-full text-base py-6 border-muted-foreground/30 text-muted-foreground"
+        {/* Main CTA — hidden after completion */}
+        {!completed && (
+          <Button
+            className="w-full text-base py-6 text-white font-bold shadow-xl"
+            style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+            onClick={onComplete}
+          >
+            ✅ ¡Día completado!
+          </Button>
+        )}
+
+        {/* Post-completion buttons — fade in after confetti */}
+        {completed && showPostButtons && (
+          <div className="space-y-3 animate-fade-in">
+            <Button
+              className="w-full text-base py-6 text-white font-bold"
+              style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+              onClick={onNavigateNext}
+            >
+              Ir al Día siguiente →
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full text-base py-6 border-muted-foreground/30 text-muted-foreground"
+              onClick={onBackToMenu}
+            >
+              ← Volver al menú
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Small back link at very bottom */}
+      {!completed && (
+        <button
           onClick={onBackToImages}
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors mt-4"
         >
           ← Volver a las imágenes
-        </Button>
-      </div>
-    ) : (
-      <div className="w-full max-w-xs space-y-3">
-        <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 dark:bg-emerald-950/40 px-5 py-3 text-emerald-700 dark:text-emerald-400 font-semibold text-sm mb-4">
-          ✅ ¡Día completado!
-        </div>
-        <Button
-          className="w-full text-base py-6 text-white font-bold"
-          style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
-          onClick={onNavigateNext}
-        >
-          Ir al Día siguiente →
-        </Button>
-        <Button
-          variant="outline"
-          className="w-full text-base py-6 border-muted-foreground/30 text-muted-foreground"
-          onClick={onBackToMenu}
-        >
-          ← Volver al menú
-        </Button>
-      </div>
-    )}
-  </div>
-);
+        </button>
+      )}
+    </div>
+  );
+};
 
 export default Day1Flow;
