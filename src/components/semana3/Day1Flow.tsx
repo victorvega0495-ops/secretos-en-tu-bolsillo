@@ -112,24 +112,6 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
     }
   }, []);
 
-  const downloadAll = useCallback(async () => {
-    for (let i = 0; i < 5; i++) {
-      const asset = carouselAssets[i];
-      if (asset) {
-        try {
-          const res = await fetch(asset.url);
-          const blob = await res.blob();
-          const ext = asset.fileName.split(".").pop()?.toLowerCase() || "jpg";
-          const blobUrl = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = blobUrl;
-          a.download = `look-${i + 1}.${ext}`;
-          a.click();
-          URL.revokeObjectURL(blobUrl);
-        } catch { /* skip */ }
-      }
-    }
-  }, [carouselAssets]);
 
   const goNext = () => {
     if (step < TOTAL_STEPS - 1) { setDirection("right"); setStep(step + 1); window.scrollTo(0, 0); }
@@ -193,7 +175,7 @@ const Day1Flow = ({ campaignId, campaignTitle, isAdmin, completed, onBack, onCom
             />
           )}
           {step === 3 && (
-            <Step4Upload assets={carouselAssets} onShare={shareOrDownload} onDownloadAll={downloadAll} isAdmin={isAdmin} />
+            <Step4Upload assets={carouselAssets} onShare={shareOrDownload} isAdmin={isAdmin} />
           )}
           {step === 4 && (
             <StepSummary
@@ -433,15 +415,23 @@ const Step3Slider = ({ assets, uploading, isAdmin, inputRefs, campaignId, active
         ))}
       </div>
 
-      {/* Pulsing share button */}
+      {/* Action buttons */}
       {asset && (
-        <button
-          onClick={() => handleShare(asset.url, asset.fileName)}
-          className="mt-4 flex items-center gap-2 text-white font-bold text-base px-8 py-3.5 rounded-full shadow-xl animate-pulse"
-          style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
-        >
-          <Share2 className="w-5 h-5" /> Compartir a Mi Estado
-        </button>
+        <div className="flex items-center gap-3 mt-4 px-5 w-full max-w-sm">
+          <button
+            onClick={() => { try { fetch(asset.url).then(r => r.blob()).then(b => { const u = URL.createObjectURL(b); const a = document.createElement("a"); a.href = u; a.download = asset.fileName; a.click(); URL.revokeObjectURL(u); }); } catch {} }}
+            className="flex-1 flex items-center justify-center gap-2 text-sm font-semibold py-3 rounded-xl border border-muted-foreground/30 text-foreground hover:bg-muted/50 transition-colors"
+          >
+            <Download className="w-4 h-4" /> ⬇️ Descargar
+          </button>
+          <button
+            onClick={() => handleShare(asset.url, asset.fileName)}
+            className="flex-1 flex items-center justify-center gap-2 text-sm font-bold text-white py-3 rounded-xl shadow-lg"
+            style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+          >
+            <Share2 className="w-4 h-4" /> 📤 Compartir
+          </button>
+        </div>
       )}
 
       {/* Admin meta inputs */}
@@ -489,11 +479,10 @@ const Step3Slider = ({ assets, uploading, isAdmin, inputRefs, campaignId, active
 interface Step4Props {
   assets: Record<number, { url: string; fileName: string } | null>;
   onShare: (url: string, fileName: string) => void;
-  onDownloadAll: () => void;
   isAdmin?: boolean;
 }
 
-const Step4Upload = ({ assets, onShare, onDownloadAll }: Step4Props) => {
+const Step4Upload = ({ assets, onShare }: Step4Props) => {
   const [fullScreenIdx, setFullScreenIdx] = useState<number | null>(null);
   const [showSharePopup, setShowSharePopup] = useState(false);
 
@@ -522,23 +511,41 @@ const Step4Upload = ({ assets, onShare, onDownloadAll }: Step4Props) => {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="space-y-3">
         {Array.from({ length: 5 }, (_, i) => {
           const asset = assets[i];
           return (
-            <div key={i} className="relative aspect-[3/4] rounded-lg overflow-hidden cursor-pointer" onClick={() => asset && setFullScreenIdx(i)}>
-              {/* Numbered badge */}
-              <div
-                className="absolute top-1.5 left-1.5 z-10 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg"
-                style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
-              >
-                {i + 1}
+            <div key={i} className="flex items-center gap-3">
+              <div className="relative w-20 h-24 flex-shrink-0 rounded-lg overflow-hidden cursor-pointer" onClick={() => asset && setFullScreenIdx(i)}>
+                <div
+                  className="absolute top-1 left-1 z-10 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow"
+                  style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+                >
+                  {i + 1}
+                </div>
+                {asset ? (
+                  <img src={asset.url} alt={`Imagen ${i + 1}`} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.15), hsl(275 65% 50% / 0.15))" }}>
+                    <ImageIcon className="w-4 h-4 text-muted-foreground/40" />
+                  </div>
+                )}
               </div>
-              {asset ? (
-                <img src={asset.url} alt={`Imagen ${i + 1}`} className="w-full h-full object-cover hover:brightness-90 transition-all" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(330 85% 55% / 0.15), hsl(275 65% 50% / 0.15))" }}>
-                  <ImageIcon className="w-4 h-4 text-muted-foreground/40" />
+              {asset && (
+                <div className="flex-1 flex items-center gap-2">
+                  <button
+                    onClick={() => { try { fetch(asset.url).then(r => r.blob()).then(b => { const u = URL.createObjectURL(b); const a = document.createElement("a"); a.href = u; a.download = asset.fileName; a.click(); URL.revokeObjectURL(u); }); } catch {} }}
+                    className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2.5 rounded-xl border border-muted-foreground/30 text-foreground hover:bg-muted/50 transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" /> ⬇️ Descargar
+                  </button>
+                  <button
+                    onClick={() => handleShare(asset.url, asset.fileName)}
+                    className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold text-white py-2.5 rounded-xl shadow-lg"
+                    style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+                  >
+                    <Share2 className="w-3.5 h-3.5" /> 📤 Compartir
+                  </button>
                 </div>
               )}
             </div>
@@ -546,15 +553,6 @@ const Step4Upload = ({ assets, onShare, onDownloadAll }: Step4Props) => {
         })}
       </div>
 
-      <div className="text-center space-y-2">
-        <p className="text-xs text-muted-foreground">También puedes descargarlas todas y subirlas desde tu galería</p>
-        <button
-          onClick={onDownloadAll}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/50 hover:bg-muted rounded-full px-4 py-2 transition-colors"
-        >
-          <Download className="w-3.5 h-3.5" /> Descargar todas
-        </button>
-      </div>
 
       {/* Full-screen lightbox with share */}
       {fullScreenIdx !== null && fullScreenAsset && (
@@ -569,13 +567,21 @@ const Step4Upload = ({ assets, onShare, onDownloadAll }: Step4Props) => {
 
           <img src={fullScreenAsset.url} alt={`Imagen ${fullScreenIdx + 1}`} className="max-h-[70vh] max-w-[90vw] object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()} />
 
-          <button
-            onClick={(e) => { e.stopPropagation(); handleShare(fullScreenAsset.url, fullScreenAsset.fileName); }}
-            className="mt-6 flex items-center gap-2 text-white font-bold text-base px-8 py-3.5 rounded-full shadow-xl animate-pulse"
-            style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
-          >
-            <Share2 className="w-5 h-5" /> Compartir a Mi Estado
-          </button>
+          <div className="flex items-center gap-3 mt-6" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => { try { fetch(fullScreenAsset.url).then(r => r.blob()).then(b => { const u = URL.createObjectURL(b); const a = document.createElement("a"); a.href = u; a.download = fullScreenAsset.fileName; a.click(); URL.revokeObjectURL(u); }); } catch {} }}
+              className="flex-1 flex items-center justify-center gap-2 text-sm font-semibold py-3 rounded-xl border border-white/30 text-white hover:bg-white/10 transition-colors"
+            >
+              <Download className="w-4 h-4" /> ⬇️ Descargar
+            </button>
+            <button
+              onClick={() => handleShare(fullScreenAsset.url, fullScreenAsset.fileName)}
+              className="flex-1 flex items-center justify-center gap-2 text-sm font-bold text-white py-3 rounded-xl shadow-lg"
+              style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+            >
+              <Share2 className="w-4 h-4" /> 📤 Compartir
+            </button>
+          </div>
 
           {showSharePopup && (
             <div className="absolute bottom-32 left-1/2 -translate-x-1/2 bg-white rounded-2xl px-6 py-4 shadow-2xl animate-in zoom-in-95 fade-in duration-300 space-y-2.5 min-w-[260px]" onClick={(e) => { e.stopPropagation(); setShowSharePopup(false); }}>
