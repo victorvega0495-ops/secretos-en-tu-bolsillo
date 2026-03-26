@@ -124,7 +124,7 @@ const CampaignSection = () => {
           />
         );
       }
-      if (campaign.id === "semana-3" && activeDay === 5) {
+      if ((campaign.id === "semana-3" || campaign.id === "semana-4") && activeDay === 5) {
         return (
           <Day5Flow
             campaignId={campaign.id}
