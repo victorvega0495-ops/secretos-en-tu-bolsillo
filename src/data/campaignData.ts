@@ -776,10 +776,51 @@ days: [
   },
   {
     id: "semana-4",
-    title: "Semana 4",
-    subtitle: "Próximamente",
-    active: false,
-    days: [],
+    title: "Semana 4 — Importados",
+    subtitle: "Price Shoes Pri-Ver 2026",
+    active: true,
+    days: [
+      ...Array.from({ length: 7 }, (_, i) => {
+        const dayNum = i + 1;
+        const typeMap: Record<number, { type: "activacion" | "prospeccion" | "seguimiento" | "cierre"; label: string; emoji: string; focus: string }> = {
+          1: { type: "activacion", emoji: "", label: "Activación", focus: "Carrusel en estados" },
+          2: { type: "activacion", emoji: "", label: "Activación", focus: "Ataque 1 a 1 — clientas anteriores" },
+          3: { type: "activacion", emoji: "", label: "Activación + Promo", focus: "Looks deportivos — gym y correr" },
+          4: { type: "prospeccion", emoji: "", label: "Prospección", focus: "Looks papá e hijo / mamá e hijo" },
+          5: { type: "prospeccion", emoji: "", label: "Prospección", focus: "Looks de viernes — tennis + outfit casual" },
+          6: { type: "seguimiento", emoji: "", label: "Seguimiento", focus: "Presumir componentes del producto" },
+          7: { type: "cierre", emoji: "", label: "Cierre", focus: "Ofertas exclusivas — referidos" },
+        };
+        const t = typeMap[dayNum];
+        return {
+          day: dayNum,
+          emoji: t.emoji,
+          type: t.type,
+          typeLabel: t.label,
+          focus: t.focus,
+          mission: "",
+          missionQuote: "",
+          steps: [],
+          lookName: "",
+          lookProductIds: "",
+          brand: "Price Shoes",
+          lookAttributes: [],
+          idealClient: { quien: "", queBusca: "", donde: "" },
+          salesHacks: [],
+          openingMessages: {
+            cold: "",
+            warm: "",
+            hot: "",
+          },
+          statusCopyImage: "",
+          statusCopyVideo: "",
+          reelStructure: [],
+          messageTemplate: "",
+          followUps: [],
+          objections: [],
+        };
+      }),
+    ],
   },
 ];
 

@@ -70,7 +70,7 @@ const CampaignSection = () => {
     const dayData = campaign.days.find((d) => d.day === activeDay);
     if (dayData) {
       // Semana 3 Day 1 uses the special full-screen flow
-      if (campaign.id === "semana-3" && activeDay === 1) {
+      if ((campaign.id === "semana-3" || campaign.id === "semana-4") && activeDay === 1) {
         return (
           <Day1Flow
             campaignId={campaign.id}
@@ -84,7 +84,7 @@ const CampaignSection = () => {
         );
       }
       // Semana 3 Day 2 uses the video/image flow
-      if (campaign.id === "semana-3" && activeDay === 2) {
+      if ((campaign.id === "semana-3" || campaign.id === "semana-4") && activeDay === 2) {
         return (
           <Day2Flow
             campaignId={campaign.id}
@@ -98,7 +98,7 @@ const CampaignSection = () => {
         );
       }
       // Semana 3 Day 3 uses the gym/deportiva flow
-      if (campaign.id === "semana-3" && activeDay === 3) {
+      if ((campaign.id === "semana-3" || campaign.id === "semana-4") && activeDay === 3) {
         return (
           <Day3Flow
             campaignId={campaign.id}
@@ -111,7 +111,7 @@ const CampaignSection = () => {
           />
         );
       }
-      if (campaign.id === "semana-3" && activeDay === 4) {
+      if ((campaign.id === "semana-3" || campaign.id === "semana-4") && activeDay === 4) {
         return (
           <Day4Flow
             campaignId={campaign.id}
@@ -124,7 +124,7 @@ const CampaignSection = () => {
           />
         );
       }
-      if (campaign.id === "semana-3" && activeDay === 5) {
+      if ((campaign.id === "semana-3" || campaign.id === "semana-4") && activeDay === 5) {
         return (
           <Day5Flow
             campaignId={campaign.id}
@@ -137,7 +137,7 @@ const CampaignSection = () => {
           />
         );
       }
-      if (campaign.id === "semana-3" && activeDay === 6) {
+      if ((campaign.id === "semana-3" || campaign.id === "semana-4") && activeDay === 6) {
         return (
           <Day6Flow
             campaignId={campaign.id}
@@ -150,7 +150,7 @@ const CampaignSection = () => {
           />
         );
       }
-      if (campaign.id === "semana-3" && activeDay === 7) {
+      if ((campaign.id === "semana-3" || campaign.id === "semana-4") && activeDay === 7) {
         return (
           <Day7Flow
             campaignId={campaign.id}
