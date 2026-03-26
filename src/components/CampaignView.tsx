@@ -212,7 +212,7 @@ const CampaignView = ({ campaign, completedDays, isAdmin, onAdminToggle, onBack,
       </div>
 
       {/* Premios section for semana-3 */}
-      {campaign.id === "semana-3" && (
+      {(campaign.id === "semana-3" || campaign.id === "semana-4") && (
         <PremiosSemana campaignId={campaign.id} isAdmin={isAdmin} />
       )}
     </div>
