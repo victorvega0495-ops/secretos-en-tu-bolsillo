@@ -84,7 +84,7 @@ const CampaignSection = () => {
         );
       }
       // Semana 3 Day 2 uses the video/image flow
-      if (campaign.id === "semana-3" && activeDay === 2) {
+      if ((campaign.id === "semana-3" || campaign.id === "semana-4") && activeDay === 2) {
         return (
           <Day2Flow
             campaignId={campaign.id}
