@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, X, Plus, Download, Share2, Trophy, Loader2 } from "lucide-react";
+import { ArrowLeft, Upload, X, Plus, Download, Share2, Trophy, Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 const BUCKET = "campaign-assets";
 const CAMPAIGN_KEY = "premios-global";
 const ADMIN_KEY = "rally-admin";
+const ADMIN_PASSWORD = "priceshoes2026";
+const ADMIN_EXPIRY_HOURS = 24;
 
 const checkAdmin = (): boolean => {
   try {
@@ -18,6 +20,12 @@ const checkAdmin = (): boolean => {
   } catch { return false; }
 };
 
+const saveAdminSession = () => {
+  localStorage.setItem(ADMIN_KEY, JSON.stringify({
+    expiresAt: Date.now() + ADMIN_EXPIRY_HOURS * 60 * 60 * 1000,
+  }));
+};
+
 interface SlotData {
   imageUrl: string;
   label: string;
@@ -25,7 +33,22 @@ interface SlotData {
 
 const Premios = () => {
   const navigate = useNavigate();
-  const isAdmin = checkAdmin();
+  const [isAdmin, setIsAdmin] = useState(checkAdmin);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+
+  const handlePasswordSubmit = () => {
+    if (password === ADMIN_PASSWORD) {
+      setIsAdmin(true);
+      saveAdminSession();
+      setShowPasswordDialog(false);
+      setPassword("");
+      setPasswordError(false);
+    } else {
+      setPasswordError(true);
+    }
+  };
 
   // Banner state
   const [bannerUrl, setBannerUrl] = useState("");
@@ -292,7 +315,45 @@ const Premios = () => {
             </Button>
           )}
         </section>
+
+        {/* Admin toggle */}
+        {!isAdmin && (
+          <div className="text-center pt-4">
+            <button
+              onClick={() => setShowPasswordDialog(true)}
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+            >
+              <Lock className="w-3 h-3" /> Admin
+            </button>
+          </div>
+        )}
+        {isAdmin && (
+          <p className="text-center text-xs text-green-600 font-medium">Modo admin activo</p>
+        )}
       </div>
+
+      {/* Password dialog */}
+      {showPasswordDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowPasswordDialog(false)}>
+          <div className="bg-background rounded-2xl p-6 mx-4 max-w-sm w-full shadow-xl space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-bold text-lg text-center">Acceso Admin</h3>
+            <input
+              type="password"
+              placeholder="Contrasena"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setPasswordError(false); }}
+              onKeyDown={(e) => e.key === "Enter" && handlePasswordSubmit()}
+              className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              autoFocus
+            />
+            {passwordError && <p className="text-destructive text-sm text-center">Contrasena incorrecta</p>}
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setShowPasswordDialog(false)}>Cancelar</Button>
+              <Button className="flex-1" onClick={handlePasswordSubmit}>Entrar</Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Lightbox */}
       {lightboxIdx !== null && lightboxSlot?.imageUrl && (
