@@ -139,9 +139,12 @@ const RallyWeek = () => {
     return (
       <div className="pt-16 pb-16 min-h-screen">
         <div className="px-4 py-6 text-center text-white relative" style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%), hsl(220 85% 55%))" }}>
-          <button onClick={() => setShowCommunity(false)} className="absolute left-4 top-4 text-white/80 hover:text-white flex items-center gap-1 text-sm">
-            <ArrowLeft className="w-4 h-4" /> Volver
-          </button>
+          <div className="absolute left-3 top-3 flex items-center gap-2">
+            <button onClick={() => setShowCommunity(false)} className="w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors">
+              <ArrowLeft className="w-5 h-5 text-white" />
+            </button>
+            <button onClick={() => setShowCommunity(false)} className="text-xs text-white/70 hover:text-white transition-colors">Volver</button>
+          </div>
           <h1 className="font-display text-lg font-bold mt-2">Comunidad</h1>
           <p className="text-xs text-white/80 mt-1">Lo que dicen las socias</p>
         </div>
