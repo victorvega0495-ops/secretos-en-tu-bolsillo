@@ -10,6 +10,7 @@ import RallyDay from "./pages/RallyDay";
 import Classes from "./pages/Classes";
 import Exclusive from "./pages/Exclusive";
 import Admin from "./pages/Admin";
+import Premios from "./pages/Premios";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/rally/:weekSlug/day/:dayNumber" element={<RallyDay />} />
           <Route path="/clases" element={<Classes />} />
           <Route path="/exclusivo" element={<Exclusive />} />
+          <Route path="/premios" element={<Premios />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

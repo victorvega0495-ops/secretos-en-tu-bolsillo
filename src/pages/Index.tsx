@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MessageCircle, BookOpen, Star, Settings, ChevronRight } from "lucide-react";
+import { MessageCircle, BookOpen, Star, Trophy, Settings, ChevronRight } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -33,6 +33,14 @@ const Index = () => {
       icon: <Star className="w-6 h-6 text-amber-500" />,
       gradient: "from-amber-500 to-orange-500",
       path: "/exclusivo",
+    },
+    {
+      id: "premios",
+      title: "Premios",
+      subtitle: "Conoce lo que puedes ganar",
+      icon: <Trophy className="w-6 h-6 text-yellow-500" />,
+      gradient: "from-yellow-500 to-orange-500",
+      path: "/premios",
     },
   ];
 
