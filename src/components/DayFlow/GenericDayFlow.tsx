@@ -311,9 +311,14 @@ const GenericDayFlow = ({
       {/* Top bar */}
       <div className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3 space-y-2">
         <div className="flex items-center justify-between">
-          <button onClick={onBack} className="text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={onBack} className="text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <button onClick={() => window.location.href = "/"} className="text-[11px] text-muted-foreground/60 hover:text-foreground transition-colors">
+              Inicio
+            </button>
+          </div>
           <span className="text-xs font-semibold text-muted-foreground">
             Día {dayConfig.dayNumber} — Paso {step + 1} de {TOTAL_STEPS} — {stepLabels[step]}
           </span>
