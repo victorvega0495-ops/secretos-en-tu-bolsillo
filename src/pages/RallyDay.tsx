@@ -30,7 +30,14 @@ const RallyDay = () => {
   const [dayConfig, setDayConfig] = useState<DayRow | null>(null);
   const [campaignTitle, setCampaignTitle] = useState("");
   const [totalDays, setTotalDays] = useState(7);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => {
+    try {
+      const raw = localStorage.getItem("rally-admin");
+      if (!raw) return false;
+      const { expiresAt } = JSON.parse(raw);
+      return Date.now() <= expiresAt;
+    } catch { return false; }
+  });
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState<Record<string, number[]>>(loadProgress);
 

@@ -64,10 +64,12 @@ const GenericDayFlow = ({
   const stepLabels = getStepsForFormat(dayConfig.format);
   const TOTAL_STEPS = stepLabels.length;
 
-  // Reset step when navigating between days
+  // Reset step and slider indices when navigating between days
   useEffect(() => {
     setStep(0);
     setDirection("right");
+    setVideoIndex(0);
+    setImageIndex(0);
   }, [dayConfig.dayNumber]);
 
   // Video assets
@@ -155,8 +157,8 @@ const GenericDayFlow = ({
     toast({ title: "Eliminado ✓", duration: 2000 });
   }, [campaignSlug, dayConfig.dayNumber, toast]);
 
-  const goNext = () => { if (step < TOTAL_STEPS - 1) { setDirection("right"); setStep(step + 1); window.scrollTo(0, 0); } };
-  const goPrev = () => { if (step > 0) { setDirection("left"); setStep(step - 1); window.scrollTo(0, 0); } };
+  const goNext = () => { if (step < TOTAL_STEPS - 1) { setDirection("right"); setStep(step + 1); setVideoIndex(0); setImageIndex(0); window.scrollTo(0, 0); } };
+  const goPrev = () => { if (step > 0) { setDirection("left"); setStep(step - 1); setVideoIndex(0); setImageIndex(0); window.scrollTo(0, 0); } };
 
   const handleComplete = () => {
     onComplete();

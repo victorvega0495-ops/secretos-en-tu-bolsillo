@@ -14,6 +14,21 @@ import type { DayFormat } from "@/components/DayFlow/GenericDayFlow";
 
 const ADMIN_PASSWORD = "priceshoes2026";
 const STORAGE_KEY = "campaign-progress";
+const ADMIN_KEY = "rally-admin";
+const ADMIN_EXPIRY_HOURS = 24;
+
+const checkAdminSession = (): boolean => {
+  try {
+    const raw = localStorage.getItem(ADMIN_KEY);
+    if (!raw) return false;
+    const { expiresAt } = JSON.parse(raw);
+    if (Date.now() > expiresAt) { localStorage.removeItem(ADMIN_KEY); return false; }
+    return true;
+  } catch { return false; }
+};
+const saveAdminSession = () => {
+  localStorage.setItem(ADMIN_KEY, JSON.stringify({ expiresAt: Date.now() + ADMIN_EXPIRY_HOURS * 60 * 60 * 1000 }));
+};
 
 const loadProgress = (): Record<string, number[]> => {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch { return {}; }
@@ -58,7 +73,7 @@ const RallyWeek = () => {
   const [campaign, setCampaign] = useState<CampaignRow | null>(null);
   const [days, setDays] = useState<DayRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(checkAdminSession);
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [password, setPassword] = useState("");
   const [showCommunity, setShowCommunity] = useState(false);
@@ -94,6 +109,7 @@ const RallyWeek = () => {
   const handlePasswordSubmit = () => {
     if (password === ADMIN_PASSWORD) {
       setIsAdmin(true);
+      saveAdminSession();
       setShowPasswordPrompt(false);
       setPassword("");
       toast({ title: "Modo admin activado", duration: 2000 });
