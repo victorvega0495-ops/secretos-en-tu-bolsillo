@@ -312,10 +312,10 @@ const GenericDayFlow = ({
       <div className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <button onClick={onBack} className="text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="w-5 h-5" />
+            <button onClick={onBack} className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors">
+              <ArrowLeft className="w-5 h-5 text-foreground" />
             </button>
-            <button onClick={() => window.location.href = "/"} className="text-[11px] text-muted-foreground/60 hover:text-foreground transition-colors">
+            <button onClick={() => window.location.href = "/"} className="text-xs text-muted-foreground/70 hover:text-foreground transition-colors">
               Inicio
             </button>
           </div>
