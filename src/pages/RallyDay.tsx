@@ -78,6 +78,12 @@ const RallyDay = () => {
     load();
   }, [weekSlug, dayNum, location.state]);
 
+  useEffect(() => {
+    if (dayConfig && campaignTitle) {
+      document.title = `Día ${dayConfig.day_number} – ${campaignTitle} | Rally Calzado Dama`;
+    }
+  }, [dayConfig, campaignTitle]);
+
   const completeDay = useCallback(() => {
     if (!weekSlug) return;
     setProgress((prev) => {

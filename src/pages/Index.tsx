@@ -6,7 +6,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Rally Calzado Dama";
+    document.title = "Rally Calzado Dama | Price Shoes";
   }, []);
 
   const sections = [

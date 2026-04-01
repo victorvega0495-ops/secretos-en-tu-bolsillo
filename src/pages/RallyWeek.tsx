@@ -93,7 +93,7 @@ const RallyWeek = () => {
         .single();
       if (campData) {
         setCampaign(campData as CampaignRow);
-        document.title = `${campData.title} | Rally Price Shoes`;
+        document.title = `${campData.title} | Rally Calzado Dama`;
         const { data: daysData } = await supabase
           .from("campaign_days")
           .select("*")
@@ -162,10 +162,15 @@ const RallyWeek = () => {
         className="px-4 py-8 text-center text-white relative"
         style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%), hsl(220 85% 55%))" }}
       >
-        <button onClick={() => navigate("/rally")} className="absolute left-4 top-4 text-white/80 hover:text-white">
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className="font-display text-xl md:text-2xl font-bold">{campaign.title}</h1>
+        <div className="absolute left-3 top-3 flex items-center gap-2">
+          <button onClick={() => navigate("/rally")} className="w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors">
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </button>
+          <button onClick={() => navigate("/")} className="text-xs text-white/70 hover:text-white transition-colors">
+            Inicio
+          </button>
+        </div>
+        <h1 className="font-display text-xl md:text-2xl font-bold mt-4">{campaign.title}</h1>
         <p className="text-sm text-white/80 mt-1">{campaign.subtitle}</p>
         <div className="max-w-xs mx-auto mt-4 space-y-2">
           <p className="text-xs text-white/70">{done} de {total} días completados</p>

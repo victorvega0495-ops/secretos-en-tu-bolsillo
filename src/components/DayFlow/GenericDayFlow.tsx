@@ -64,12 +64,15 @@ const GenericDayFlow = ({
   const stepLabels = getStepsForFormat(dayConfig.format);
   const TOTAL_STEPS = stepLabels.length;
 
-  // Reset step and slider indices when navigating between days
+  // Reset step, slider indices, and assets when navigating between days
   useEffect(() => {
     setStep(0);
     setDirection("right");
     setVideoIndex(0);
     setImageIndex(0);
+    setVideoAssets({});
+    setImageAssets({});
+    setDayCompleted(completed);
   }, [dayConfig.dayNumber]);
 
   // Video assets
@@ -178,6 +181,10 @@ const GenericDayFlow = ({
         title={dayConfig.title}
         mission={dayConfig.mission}
         missionQuote={dayConfig.missionQuote}
+        format={dayConfig.format}
+        isAdmin={isAdmin}
+        campaignSlug={campaignSlug}
+        dayNumber={dayConfig.dayNumber}
       />
     );
 
@@ -350,22 +357,116 @@ const GenericDayFlow = ({
 };
 
 /* ========== Mission Step ========== */
-const MissionStep = ({ title, mission, missionQuote }: { title: string; mission?: string; missionQuote?: string }) => (
-  <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 py-8">
-    <p className="text-5xl">🎯</p>
-    <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground leading-tight">
-      {title || "Misión del día"}
-    </h1>
-    {mission && (
-      <p className="text-base text-muted-foreground leading-relaxed max-w-sm">{mission}</p>
-    )}
-    {missionQuote && (
-      <p className="text-sm italic max-w-xs" style={{ color: "hsl(330, 85%, 55%)" }}>
-        "{missionQuote}"
-      </p>
-    )}
-  </div>
-);
+const getStepBreakdown = (format: DayFormat): { icon: string; text: string }[] => {
+  switch (format) {
+    case "solo_imagenes":
+      return [
+        { icon: "📸", text: "Sube 5 imágenes al carrusel" },
+        { icon: "📤", text: "Comparte en tu estado de WhatsApp" },
+      ];
+    case "video_imagen":
+      return [
+        { icon: "🎬", text: "Sube 2 videos" },
+        { icon: "📸", text: "Sube 2 imágenes" },
+        { icon: "📤", text: "Comparte con tus clientas" },
+      ];
+    case "solo_video":
+      return [
+        { icon: "🎬", text: "Sube 2 videos" },
+        { icon: "📤", text: "Comparte en tu estado" },
+      ];
+    case "imagenes_detalle":
+      return [
+        { icon: "🔍", text: "Sube 4 imágenes a detalle" },
+        { icon: "📤", text: "Comparte los detalles" },
+      ];
+    case "referidos":
+      return [
+        { icon: "🎬", text: "Sube 2 videos" },
+        { icon: "📸", text: "Sube 2 imágenes" },
+        { icon: "💬", text: "Copia los mensajes de referidos" },
+      ];
+  }
+};
+
+const MissionStep = ({ title, mission, missionQuote, format, isAdmin, campaignSlug, dayNumber }: {
+  title: string; mission?: string; missionQuote?: string; format: DayFormat;
+  isAdmin: boolean; campaignSlug: string; dayNumber: number;
+}) => {
+  const [editingMission, setEditingMission] = useState(false);
+  const [missionText, setMissionText] = useState(mission || "");
+  const breakdown = getStepBreakdown(format);
+
+  const saveMission = useCallback(async (value: string) => {
+    // Update campaign_days.mission via campaign slug lookup
+    const { data: camp } = await supabase.from("campaigns").select("id").eq("slug", campaignSlug).single();
+    if (camp) {
+      await supabase.from("campaign_days").update({ mission: value }).eq("campaign_id", camp.id).eq("day_number", dayNumber);
+    }
+  }, [campaignSlug, dayNumber]);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 py-8">
+      <p className="text-5xl">🎯</p>
+      <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground leading-tight">
+        {title || "Misión del día"}
+      </h1>
+
+      {/* Mission description - editable by admin */}
+      {isAdmin && editingMission ? (
+        <div className="w-full max-w-sm space-y-2">
+          <textarea
+            value={missionText}
+            onChange={(e) => setMissionText(e.target.value)}
+            className="w-full text-sm px-3 py-2 rounded-lg border border-border bg-background text-foreground resize-none"
+            rows={3}
+            autoFocus
+          />
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={() => { saveMission(missionText); setEditingMission(false); }}
+              className="text-xs font-bold text-white px-4 py-1.5 rounded-lg"
+              style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+            >
+              Guardar
+            </button>
+            <button onClick={() => { setMissionText(mission || ""); setEditingMission(false); }} className="text-xs text-muted-foreground px-4 py-1.5">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="relative group">
+          <p className="text-base text-muted-foreground leading-relaxed max-w-sm">
+            {missionText || mission || "Sin descripción"}
+          </p>
+          {isAdmin && (
+            <button onClick={() => setEditingMission(true)} className="absolute -right-8 top-0 text-muted-foreground/50 hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity text-xs">
+              ✏️
+            </button>
+          )}
+        </div>
+      )}
+
+      {missionQuote && (
+        <p className="text-sm italic max-w-xs" style={{ color: "hsl(330, 85%, 55%)" }}>
+          "{missionQuote}"
+        </p>
+      )}
+
+      {/* Step breakdown */}
+      <div className="w-full max-w-xs space-y-2 mt-4">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Hoy harás</p>
+        {breakdown.map((s, i) => (
+          <div key={i} className="flex items-center gap-3 text-left px-4 py-2.5 rounded-xl bg-muted/50">
+            <span className="text-lg">{s.icon}</span>
+            <span className="text-sm text-foreground">{s.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 /* ========== Media Slider ========== */
 interface MediaSliderProps {
@@ -543,6 +644,17 @@ const ShareStep = ({ assets }: { assets: Record<number, { url: string; fileName:
               <img src={asset.url} alt={`Imagen ${i + 1}`} className="w-full h-full object-cover" />
             </div>
             <div className="flex-1 flex items-center gap-2">
+              <button onClick={async () => {
+                  const res = await fetch(asset.url);
+                  const blob = await res.blob();
+                  const blobUrl = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = blobUrl; a.download = asset.fileName || `imagen-${i + 1}.jpg`; a.click();
+                  URL.revokeObjectURL(blobUrl);
+                }}
+                className="flex items-center justify-center gap-1.5 text-xs font-semibold py-2.5 px-3 rounded-xl border border-border text-foreground hover:bg-muted transition-colors">
+                <Download className="w-3.5 h-3.5" /> Descargar
+              </button>
               <button onClick={() => shareOrDownload(asset.url, asset.fileName)}
                 className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold text-white py-2.5 rounded-xl shadow-lg"
                 style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}>
