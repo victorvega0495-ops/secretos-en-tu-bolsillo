@@ -549,7 +549,6 @@ const MediaSlider = ({
             ) : (
               <img src={asset.url} alt={`${type} ${activeIndex + 1}`} className="w-full max-h-[55vh] object-contain animate-in fade-in duration-200" />
             )}
-            {!isAdmin && type === "image" && <ProductMetaOverlay campaignId={campaignSlug} dayNumber={dayNumber} assetType={`${assetPrefix}_${activeIndex}`} />}
             {labels && labels[activeIndex] && (
               <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-4 py-2">
                 <p className="text-white text-sm font-bold">{labels[activeIndex]}</p>
@@ -573,6 +572,11 @@ const MediaSlider = ({
             onChange={(e) => { const f = e.target.files?.[0]; if (f) { onUpload(f, i); e.target.value = ""; } }} />
         ))}
       </div>
+
+      {/* Product meta (below image) */}
+      {!isAdmin && type === "image" && asset && (
+        <ProductMetaOverlay campaignId={campaignSlug} dayNumber={dayNumber} assetType={`${assetPrefix}_${activeIndex}`} />
+      )}
 
       {/* Action buttons */}
       {asset && (

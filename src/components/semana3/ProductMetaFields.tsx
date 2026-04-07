@@ -118,9 +118,20 @@ export const ProductMetaOverlay = ({ campaignId, dayNumber, assetType }: { campa
   if (!loaded || (!productId && !productDesc)) return null;
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-black/70 backdrop-blur-sm px-3 py-2 pointer-events-none">
-      {productId && <p className="text-white font-bold text-xs leading-tight">{productId}</p>}
-      {productDesc && <p className="text-white/80 text-[10px] leading-tight">{productDesc}</p>}
+    <div className="flex flex-col items-center gap-1.5 mt-3 px-4">
+      {productId && (
+        <span
+          className="text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm tracking-wide"
+          style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+        >
+          {productId}
+        </span>
+      )}
+      {productDesc && (
+        <p className="text-xs text-muted-foreground text-center leading-snug max-w-xs">
+          {productDesc}
+        </p>
+      )}
     </div>
   );
 };
