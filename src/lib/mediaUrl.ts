@@ -11,3 +11,14 @@ export function optimizeImage(url: string, width = 900, quality = 75): string {
     `?width=${width}&quality=${quality}`
   );
 }
+
+/**
+ * Append a media fragment (#t=0.5) so iOS/Android Safari shows the frame at
+ * 0.5s as the poster while the video is paused. Combined with
+ * preload="metadata" this gives a real preview thumbnail without storing one.
+ */
+export function videoPoster(url: string): string {
+  if (!url) return url;
+  if (url.includes("#t=")) return url;
+  return `${url}#t=0.5`;
+}

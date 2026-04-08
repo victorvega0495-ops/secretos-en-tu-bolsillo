@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { shareOrDownload } from "@/lib/share";
-import { optimizeImage } from "@/lib/mediaUrl";
+import { optimizeImage, videoPoster } from "@/lib/mediaUrl";
 import { fireConfetti } from "@/lib/confetti";
 import { ProductMetaInputs, ProductMetaOverlay } from "@/components/semana3/ProductMetaFields";
 import EditableMessages from "@/components/semana3/EditableMessages";
@@ -548,7 +548,7 @@ const MediaSlider = ({
             {type === "video" ? (
               <video
                 controls
-                src={asset.url}
+                src={videoPoster(asset.url)}
                 preload="metadata"
                 playsInline
                 className="w-full max-h-[55vh] object-contain animate-in fade-in duration-200"

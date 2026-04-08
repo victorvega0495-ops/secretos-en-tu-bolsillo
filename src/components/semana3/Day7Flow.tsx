@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { ProductMetaInputs, ProductMetaOverlay } from "./ProductMetaFields";
 import EditableMessages from "./EditableMessages";
-import { optimizeImage } from "@/lib/mediaUrl";
+import { optimizeImage, videoPoster } from "@/lib/mediaUrl";
 
 interface Day7FlowProps {
   campaignId: string;
@@ -306,7 +306,7 @@ const MediaSlider = ({
         ) : asset ? (
           <div className="relative w-full">
             {type === "video" ? (
-              <video src={asset.url} controls playsInline preload="metadata" className="w-full max-h-[50vh] object-contain rounded-2xl animate-in fade-in duration-200" />
+              <video src={videoPoster(asset.url)} controls playsInline preload="metadata" className="w-full max-h-[50vh] object-contain rounded-2xl animate-in fade-in duration-200" />
             ) : (
               <img src={optimizeImage(asset.url, 900)} alt={`Imagen ${activeIndex + 1}`} loading="eager" decoding="async" className="w-full max-h-[50vh] object-contain animate-in fade-in duration-200" />
             )}
