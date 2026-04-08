@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { ProductMetaInputs, ProductMetaOverlay, useProductMeta, useSaveMeta } from "./ProductMetaFields";
 import EditableMessages from "./EditableMessages";
+import { optimizeImage } from "@/lib/mediaUrl";
 
 interface Day6FlowProps {
   campaignId: string;
@@ -294,7 +295,7 @@ const DetailSlider = ({
           </div>
         ) : asset ? (
           <div className="relative w-full">
-            <img src={asset.url} alt={label || `Detalle ${activeIndex + 1}`} className="w-full max-h-[50vh] object-contain animate-in fade-in duration-200" />
+            <img src={optimizeImage(asset.url, 900)} alt={label || `Detalle ${activeIndex + 1}`} loading="eager" decoding="async" className="w-full max-h-[50vh] object-contain animate-in fade-in duration-200" />
             {!isAdmin && <ProductMetaOverlay campaignId={campaignId} dayNumber={DAY} assetType={slotAssetType} />}
           </div>
         ) : (

@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { shareOrDownload } from "@/lib/share";
+import { optimizeImage } from "@/lib/mediaUrl";
 import { fireConfetti } from "@/lib/confetti";
 import { ProductMetaInputs, ProductMetaOverlay } from "@/components/semana3/ProductMetaFields";
 import EditableMessages from "@/components/semana3/EditableMessages";
@@ -545,9 +546,32 @@ const MediaSlider = ({
         ) : asset ? (
           <div className="relative w-full">
             {type === "video" ? (
-              <video controls src={asset.url} className="w-full max-h-[55vh] object-contain animate-in fade-in duration-200" />
+              <video
+                controls
+                src={asset.url}
+                preload="metadata"
+                playsInline
+                className="w-full max-h-[55vh] object-contain animate-in fade-in duration-200"
+              />
             ) : (
-              <img src={asset.url} alt={`${type} ${activeIndex + 1}`} className="w-full max-h-[55vh] object-contain animate-in fade-in duration-200" />
+              <img
+                src={optimizeImage(asset.url, 900)}
+                alt={`${type} ${activeIndex + 1}`}
+                loading="eager"
+                decoding="async"
+                className="w-full max-h-[55vh] object-contain animate-in fade-in duration-200"
+              />
+            )}
+            {/* Preload neighbours so swipe is instant */}
+            {type === "image" && (
+              <>
+                {assets[activeIndex + 1] && (
+                  <img src={optimizeImage(assets[activeIndex + 1]!.url, 900)} alt="" aria-hidden="true" className="hidden" />
+                )}
+                {assets[activeIndex - 1] && (
+                  <img src={optimizeImage(assets[activeIndex - 1]!.url, 900)} alt="" aria-hidden="true" className="hidden" />
+                )}
+              </>
             )}
             {labels && labels[activeIndex] && (
               <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-4 py-2">
@@ -650,7 +674,7 @@ const ShareStep = ({ assets }: { assets: Record<number, { url: string; fileName:
               <div className="absolute top-1 left-1 z-10 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow" style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}>
                 {i + 1}
               </div>
-              <img src={asset.url} alt={`Imagen ${i + 1}`} className="w-full h-full object-cover" />
+              <img src={optimizeImage(asset.url, 200)} alt={`Imagen ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
             </div>
             <div className="flex-1 flex items-center gap-2">
               <button onClick={async () => {

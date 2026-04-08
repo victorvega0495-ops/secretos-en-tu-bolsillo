@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, X, Plus, Download, Share2, Trophy, Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { optimizeImage } from "@/lib/mediaUrl";
 
 const BUCKET = "campaign-assets";
 const CAMPAIGN_KEY = "premios-global";
@@ -217,7 +218,7 @@ const Premios = () => {
           <div className="relative rounded-2xl overflow-hidden border border-border bg-card aspect-[16/9]">
             {bannerUrl ? (
               <>
-                <img src={bannerUrl} alt="Viaje de premiacion" className="w-full h-full object-cover" />
+                <img src={optimizeImage(bannerUrl, 1200)} alt="Viaje de premiacion" loading="eager" decoding="async" className="w-full h-full object-cover" />
                 {isAdmin && (
                   <label className="absolute bottom-3 right-3 cursor-pointer">
                     <div className="flex items-center gap-1.5 bg-black/60 text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-black/80 transition-colors">
@@ -262,7 +263,7 @@ const Premios = () => {
                         className="relative flex-1 cursor-pointer"
                         onClick={() => !isAdmin && setLightboxIdx(i)}
                       >
-                        <img src={slot.imageUrl} alt={slot.label || `Premio ${i + 1}`} className="w-full h-full object-cover" />
+                        <img src={optimizeImage(slot.imageUrl, 400)} alt={slot.label || `Premio ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                         {isAdmin && (
                           <button
                             onClick={(e) => { e.stopPropagation(); deletePrize(i); }}
