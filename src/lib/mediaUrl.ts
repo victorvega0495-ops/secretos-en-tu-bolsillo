@@ -6,9 +6,12 @@
 export function optimizeImage(url: string, width = 900, quality = 75): string {
   if (!url) return url;
   if (!url.includes("/storage/v1/object/public/")) return url;
+  // resize=contain is required — without it Supabase does NOT preserve the
+  // source aspect ratio when only width is provided (it pads height to the
+  // original, breaking object-cover layouts).
   return (
     url.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/") +
-    `?width=${width}&quality=${quality}`
+    `?width=${width}&resize=contain&quality=${quality}`
   );
 }
 
