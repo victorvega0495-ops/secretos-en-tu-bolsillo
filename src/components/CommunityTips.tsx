@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ThumbsUp, Loader2 } from "lucide-react";
+import { ThumbsUp, Loader2, MessageCircle, CornerDownRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Tip {
@@ -15,6 +15,7 @@ interface Tip {
   likes: number;
   day_number: number;
   created_at: string;
+  parent_id: string | null;
 }
 
 interface CommunityTipsProps {
@@ -37,6 +38,8 @@ const timeAgo = (date: string) => {
 const CommunityTips = ({ dayNumber, campaign }: CommunityTipsProps) => {
   const { toast } = useToast();
   const [tips, setTips] = useState<Tip[]>([]);
+  const [replies, setReplies] = useState<Record<string, Tip[]>>({});
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -45,7 +48,35 @@ const CommunityTips = ({ dayNumber, campaign }: CommunityTipsProps) => {
   const [message, setMessage] = useState("");
   const [posting, setPosting] = useState(false);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyNickname, setReplyNickname] = useState("");
+  const [replyMessage, setReplyMessage] = useState("");
+  const [replyPosting, setReplyPosting] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const fetchReplies = useCallback(async (parentIds: string[]) => {
+    if (parentIds.length === 0) return;
+    const { data } = await supabase
+      .from("community_tips")
+      .select("*")
+      .in("parent_id", parentIds)
+      .order("created_at", { ascending: true });
+    const grouped: Record<string, Tip[]> = {};
+    ((data || []) as Tip[]).forEach((r) => {
+      if (!r.parent_id) return;
+      if (!grouped[r.parent_id]) grouped[r.parent_id] = [];
+      grouped[r.parent_id].push(r);
+    });
+    setReplies((prev) => ({ ...prev, ...grouped }));
+  }, []);
+
+  const fetchCount = useCallback(async () => {
+    const { count } = await supabase
+      .from("community_tips")
+      .select("*", { count: "exact", head: true })
+      .eq("campaign", campaign);
+    setTotalCount(count || 0);
+  }, [campaign]);
 
   const fetchTips = useCallback(async (offset: number, append: boolean) => {
     if (append) setLoadingMore(true); else setLoading(true);
@@ -53,6 +84,7 @@ const CommunityTips = ({ dayNumber, campaign }: CommunityTipsProps) => {
       .from("community_tips")
       .select("*")
       .eq("campaign", campaign)
+      .is("parent_id", null)
       .order("created_at", { ascending: false })
       .range(offset, offset + PAGE_SIZE - 1);
     const rows = (data || []) as Tip[];
@@ -64,13 +96,17 @@ const CommunityTips = ({ dayNumber, campaign }: CommunityTipsProps) => {
     setHasMore(rows.length === PAGE_SIZE);
     setLoading(false);
     setLoadingMore(false);
-  }, [campaign]);
+    // Load replies for the newly fetched tips
+    fetchReplies(rows.map((r) => r.id));
+  }, [campaign, fetchReplies]);
 
   useEffect(() => {
     setTips([]);
+    setReplies({});
     setHasMore(true);
     fetchTips(0, false);
-  }, [campaign, fetchTips]);
+    fetchCount();
+  }, [campaign, fetchTips, fetchCount]);
 
   // Infinite scroll observer
   useEffect(() => {
@@ -105,10 +141,44 @@ const CommunityTips = ({ dayNumber, campaign }: CommunityTipsProps) => {
       toast({ title: "¡Tip compartido! ✨", duration: 2000 });
       // Reload from start to show new tip at top
       setTips([]);
+      setReplies({});
       setHasMore(true);
       await fetchTips(0, false);
+      fetchCount();
     }
     setPosting(false);
+  };
+
+  const handlePostReply = async (parentId: string, parentDayNumber: number) => {
+    if (!replyNickname.trim() || !replyMessage.trim()) {
+      toast({ title: "Escribe tu nombre y tu respuesta 😊", duration: 2000 });
+      return;
+    }
+    setReplyPosting(true);
+    const { data, error } = await supabase
+      .from("community_tips")
+      .insert({
+        day_number: parentDayNumber,
+        campaign,
+        nickname: replyNickname.trim(),
+        city: null,
+        message: replyMessage.trim(),
+        parent_id: parentId,
+      })
+      .select()
+      .single();
+    if (!error && data) {
+      setReplies((prev) => ({
+        ...prev,
+        [parentId]: [...(prev[parentId] || []), data as Tip],
+      }));
+      setReplyMessage("");
+      setReplyNickname("");
+      setReplyingTo(null);
+      setTotalCount((c) => c + 1);
+      toast({ title: "¡Respuesta enviada! 💬", duration: 2000 });
+    }
+    setReplyPosting(false);
   };
 
   const handleLike = async (tipId: string, currentLikes: number) => {
@@ -127,13 +197,24 @@ const CommunityTips = ({ dayNumber, campaign }: CommunityTipsProps) => {
     <section className="space-y-4">
       {/* Post form */}
       <div className="rounded-2xl border border-border overflow-hidden shadow-sm">
-        <div className="p-4 border-b border-border bg-muted/30">
-          <h2 className="font-display font-bold text-sm text-foreground">
-            💬 ¿Qué está funcionando hoy?
-          </h2>
-          <p className="text-xs text-muted-foreground mt-1">
-            Comparte un tip con las demás socias
-          </p>
+        <div className="p-4 border-b border-border bg-muted/30 flex items-start justify-between gap-2">
+          <div>
+            <h2 className="font-display font-bold text-sm text-foreground">
+              💬 ¿Qué está funcionando hoy?
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Comparte un tip con las demás socias
+            </p>
+          </div>
+          {totalCount > 0 && (
+            <span
+              className="flex items-center gap-1 text-[11px] font-bold text-white px-2.5 py-1 rounded-full whitespace-nowrap"
+              style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+            >
+              <MessageCircle className="w-3 h-3" />
+              {totalCount}
+            </span>
+          )}
         </div>
         <div className="p-4 space-y-3">
           <div className="grid grid-cols-2 gap-2">
@@ -191,48 +272,126 @@ const CommunityTips = ({ dayNumber, campaign }: CommunityTipsProps) => {
         </div>
       ) : (
         <div className="space-y-3">
-          {tips.map((tip) => (
-            <div
-              key={tip.id}
-              className="rounded-lg border border-border p-3 space-y-2"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-display font-bold text-sm text-foreground">
-                    {tip.nickname}
-                  </span>
-                  {tip.city && (
-                    <span className="text-[10px] text-muted-foreground">
-                      🏪 {tip.city}
+          {tips.map((tip) => {
+            const tipReplies = replies[tip.id] || [];
+            const isReplying = replyingTo === tip.id;
+            return (
+              <div
+                key={tip.id}
+                className="rounded-lg border border-border p-3 space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-display font-bold text-sm text-foreground">
+                      {tip.nickname}
                     </span>
-                  )}
-                  <span
-                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white"
-                    style={{ background: "hsl(330 85% 55%)" }}
-                  >
-                    Día {tip.day_number}
+                    {tip.city && (
+                      <span className="text-[10px] text-muted-foreground">
+                        🏪 {tip.city}
+                      </span>
+                    )}
+                    <span
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white"
+                      style={{ background: "hsl(330 85% 55%)" }}
+                    >
+                      Día {tip.day_number}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">
+                    {timeAgo(tip.created_at)}
                   </span>
                 </div>
-                <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">
-                  {timeAgo(tip.created_at)}
-                </span>
+                <p className="text-sm text-foreground leading-relaxed">
+                  {tip.message}
+                </p>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => handleLike(tip.id, tip.likes)}
+                    className={`flex items-center gap-1 text-xs transition-colors ${
+                      likedIds.has(tip.id)
+                        ? "text-primary font-bold"
+                        : "text-muted-foreground hover:text-primary"
+                    }`}
+                  >
+                    <ThumbsUp className="w-3.5 h-3.5" />
+                    {tip.likes > 0 && <span>{tip.likes}</span>}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setReplyingTo(isReplying ? null : tip.id);
+                      setReplyMessage("");
+                    }}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    Responder
+                    {tipReplies.length > 0 && <span>({tipReplies.length})</span>}
+                  </button>
+                </div>
+
+                {/* Replies */}
+                {tipReplies.length > 0 && (
+                  <div className="pl-3 border-l-2 border-muted space-y-2 mt-2">
+                    {tipReplies.map((reply) => (
+                      <div key={reply.id} className="space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <CornerDownRight className="w-3 h-3 text-muted-foreground" />
+                            <span className="font-display font-bold text-xs text-foreground">
+                              {reply.nickname}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                            {timeAgo(reply.created_at)}
+                          </span>
+                        </div>
+                        <p className="text-xs text-foreground/90 leading-relaxed pl-4">
+                          {reply.message}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Inline reply form */}
+                {isReplying && (
+                  <div className="pl-3 border-l-2 border-primary/30 space-y-2 mt-2">
+                    <Input
+                      placeholder="Tu nombre"
+                      value={replyNickname}
+                      onChange={(e) => setReplyNickname(e.target.value)}
+                      className="text-xs h-8"
+                    />
+                    <Textarea
+                      placeholder={`Responder a ${tip.nickname}...`}
+                      value={replyMessage}
+                      onChange={(e) => setReplyMessage(e.target.value)}
+                      className="text-xs min-h-[50px]"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        variant="gradient"
+                        size="sm"
+                        className="text-xs h-8"
+                        onClick={() => handlePostReply(tip.id, tip.day_number)}
+                        disabled={replyPosting}
+                      >
+                        {replyPosting ? "Enviando..." : "Responder"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs h-8"
+                        onClick={() => setReplyingTo(null)}
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
-              <p className="text-sm text-foreground leading-relaxed">
-                {tip.message}
-              </p>
-              <button
-                onClick={() => handleLike(tip.id, tip.likes)}
-                className={`flex items-center gap-1 text-xs transition-colors ${
-                  likedIds.has(tip.id)
-                    ? "text-primary font-bold"
-                    : "text-muted-foreground hover:text-primary"
-                }`}
-              >
-                <ThumbsUp className="w-3.5 h-3.5" />
-                {tip.likes > 0 && <span>{tip.likes}</span>}
-              </button>
-            </div>
-          ))}
+            );
+          })}
 
           {/* Infinite scroll sentinel */}
           <div ref={sentinelRef} className="py-2 flex justify-center">
