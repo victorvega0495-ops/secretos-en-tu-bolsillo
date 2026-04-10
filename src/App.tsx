@@ -12,6 +12,7 @@ import Classes from "./pages/Classes";
 import Exclusive from "./pages/Exclusive";
 import Admin from "./pages/Admin";
 import Premios from "./pages/Premios";
+import Avisos from "./pages/Avisos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/clases" element={<Classes />} />
           <Route path="/exclusivo" element={<Exclusive />} />
           <Route path="/premios" element={<Premios />} />
+          <Route path="/avisos" element={<Avisos />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
