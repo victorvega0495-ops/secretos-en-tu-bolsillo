@@ -46,7 +46,7 @@ const Index = () => {
       id: "avisos",
       title: "Avisos y Tutoriales",
       subtitle: "Información importante y guías",
-      icon: <Megaphone className="w-6 h-6 text-indigo-400" />,
+      icon: <Megaphone className="w-6 h-6 text-indigo-400 animate-bell" />,
       gradient: "from-indigo-500 to-purple-500",
       path: "/avisos",
     },
