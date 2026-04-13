@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Clock, Upload, Loader2 } from "lucide-react";
+import { ArrowLeft, Play, Clock, Upload, Loader2, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { optimizeImage } from "@/lib/mediaUrl";
@@ -40,6 +40,8 @@ const Classes = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todas");
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [showPwDialog, setShowPwDialog] = useState(false);
+  const [pwInput, setPwInput] = useState("");
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
@@ -87,9 +89,63 @@ const Classes = () => {
           </button>
           <button onClick={() => navigate("/")} className="text-xs text-white/70 hover:text-white transition-colors">Inicio</button>
         </div>
+        {!isAdmin && (
+          <button
+            onClick={() => setShowPwDialog(true)}
+            className="absolute right-4 top-4 text-white/40 text-[10px] hover:text-white/80"
+          >
+            admin
+          </button>
+        )}
+        {isAdmin && (
+          <span className="absolute right-4 top-4 text-[10px] text-white/60 flex items-center gap-1">
+            <Lock className="w-3 h-3" /> Admin
+          </span>
+        )}
         <h1 className="font-display text-xl font-bold mt-2">Clases</h1>
         <p className="text-xs text-white/80 mt-1">Aprende las mejores técnicas de venta</p>
       </div>
+
+      {/* Admin password dialog */}
+      {showPwDialog && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setShowPwDialog(false)}>
+          <div className="bg-card rounded-2xl p-6 w-full max-w-xs space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-bold text-center text-foreground">Acceso Admin</h3>
+            <input
+              type="password"
+              placeholder="Contraseña"
+              value={pwInput}
+              onChange={(e) => setPwInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  if (pwInput === "priceshoes2026") {
+                    localStorage.setItem(ADMIN_KEY, JSON.stringify({ expiresAt: Date.now() + 24 * 60 * 60 * 1000 }));
+                    setIsAdmin(true);
+                    setShowPwDialog(false);
+                  }
+                  setPwInput("");
+                }
+              }}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+              autoFocus
+            />
+            <button
+              onClick={() => {
+                if (pwInput === "priceshoes2026") {
+                  localStorage.setItem(ADMIN_KEY, JSON.stringify({ expiresAt: Date.now() + 24 * 60 * 60 * 1000 }));
+                  setIsAdmin(true);
+                  setShowPwDialog(false);
+                }
+                setPwInput("");
+              }}
+              className="w-full py-2 rounded-lg text-white text-sm font-bold"
+              style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
+            >
+              Entrar
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="px-4 py-4 max-w-2xl mx-auto space-y-3">
