@@ -11,6 +11,7 @@ interface Tip {
   id: string;
   nickname: string;
   city: string | null;
+  socia_id: string | null;
   message: string;
   likes: number;
   day_number: number;
@@ -45,6 +46,7 @@ const CommunityTips = ({ dayNumber, campaign }: CommunityTipsProps) => {
   const [hasMore, setHasMore] = useState(true);
   const [nickname, setNickname] = useState("");
   const [city, setCity] = useState("");
+  const [sociaId, setSociaId] = useState("");
   const [message, setMessage] = useState("");
   const [posting, setPosting] = useState(false);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
@@ -133,6 +135,7 @@ const CommunityTips = ({ dayNumber, campaign }: CommunityTipsProps) => {
       day_number: dayNumber,
       campaign,
       nickname: nickname.trim(),
+      socia_id: sociaId.trim() || null,
       city: city.trim() || null,
       message: message.trim(),
     });
@@ -225,12 +228,18 @@ const CommunityTips = ({ dayNumber, campaign }: CommunityTipsProps) => {
               className="text-sm"
             />
             <Input
-              placeholder="Nombre de tu tienda"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
+              placeholder="ID Socia"
+              value={sociaId}
+              onChange={(e) => setSociaId(e.target.value)}
               className="text-sm"
             />
           </div>
+          <Input
+            placeholder="Nombre de tu tienda"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            className="text-sm"
+          />
           <Textarea
             placeholder="¿Qué te está funcionando hoy? Comparte tu tip 💡"
             value={message}
@@ -285,6 +294,11 @@ const CommunityTips = ({ dayNumber, campaign }: CommunityTipsProps) => {
                     <span className="font-display font-bold text-sm text-foreground">
                       {tip.nickname}
                     </span>
+                    {tip.socia_id && (
+                      <span className="text-[10px] font-semibold text-primary">
+                        ID: {tip.socia_id}
+                      </span>
+                    )}
                     {tip.city && (
                       <span className="text-[10px] text-muted-foreground">
                         🏪 {tip.city}

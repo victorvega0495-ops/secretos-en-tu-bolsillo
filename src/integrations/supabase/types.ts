@@ -24,6 +24,8 @@ export type Database = {
           likes: number
           message: string
           nickname: string
+          parent_id: string | null
+          socia_id: string | null
         }
         Insert: {
           campaign: string
@@ -34,6 +36,8 @@ export type Database = {
           likes?: number
           message: string
           nickname: string
+          parent_id?: string | null
+          socia_id?: string | null
         }
         Update: {
           campaign?: string
@@ -44,6 +48,8 @@ export type Database = {
           likes?: number
           message?: string
           nickname?: string
+          parent_id?: string | null
+          socia_id?: string | null
         }
         Relationships: []
       }
