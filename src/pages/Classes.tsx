@@ -1,12 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Clock, Search, Filter, ExternalLink } from "lucide-react";
+import { ArrowLeft, Play, Clock, Upload, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { checkLocalAccess, saveLocalAccess } from "@/lib/accessCode";
-import { useToast } from "@/hooks/use-toast";
+import { optimizeImage } from "@/lib/mediaUrl";
 
 interface ClassRow {
   id: string;
@@ -20,33 +17,37 @@ interface ClassRow {
   is_published: boolean;
 }
 
-const getYouTubeThumbnail = (url: string): string => {
-  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/);
-  if (match) return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
-  return "";
+const ADMIN_KEY = "rally-admin";
+const BUCKET = "campaign-assets";
+
+const checkAdmin = (): boolean => {
+  try {
+    const raw = localStorage.getItem(ADMIN_KEY);
+    if (!raw) return false;
+    const { expiresAt } = JSON.parse(raw);
+    if (Date.now() > expiresAt) { localStorage.removeItem(ADMIN_KEY); return false; }
+    return true;
+  } catch { return false; }
 };
 
 const CATEGORIES = ["Todas", "Prospección", "Cierre", "Redes Sociales", "Seguimiento", "Técnicas de Venta"];
 
 const Classes = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [hasAccess, setHasAccess] = useState(true);
-  const [accessCode, setAccessCode] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [classes, setClasses] = useState<ClassRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("Todas");
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
     document.title = "Clases | Price Shoes";
-    if (checkLocalAccess("classes") || checkLocalAccess("both")) {
-      setHasAccess(true);
-    }
+    setIsAdmin(checkAdmin());
   }, []);
 
   useEffect(() => {
-    if (!hasAccess) { setLoading(false); return; }
     supabase
       .from("classes")
       .select("*")
@@ -56,25 +57,19 @@ const Classes = () => {
         if (data) setClasses(data as ClassRow[]);
         setLoading(false);
       });
-  }, [hasAccess]);
+  }, []);
 
-  const handleAccessSubmit = async () => {
-    const { data } = await supabase
-      .from("access_codes")
-      .select("*")
-      .eq("code", accessCode.trim())
-      .eq("is_active", true)
-      .single();
-
-    if (data && (data.section === "classes" || data.section === "both")) {
-      saveLocalAccess(accessCode.trim(), data.section);
-      setHasAccess(true);
-      toast({ title: "¡Acceso concedido!", duration: 2000 });
-    } else {
-      toast({ title: "Código inválido", variant: "destructive", duration: 2000 });
-    }
-    setAccessCode("");
-  };
+  const uploadThumbnail = useCallback(async (classId: string, file: File) => {
+    setUploadingId(classId);
+    const path = `classes/thumb_${classId}_${Date.now()}_${file.name}`;
+    const { error } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true });
+    if (error) { setUploadingId(null); return; }
+    const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
+    const url = urlData.publicUrl;
+    await supabase.from("classes").update({ thumbnail_url: url }).eq("id", classId);
+    setClasses((prev) => prev.map((c) => c.id === classId ? { ...c, thumbnail_url: url } : c));
+    setUploadingId(null);
+  }, []);
 
   const filtered = classes.filter((c) => {
     if (selectedCategory !== "Todas" && c.category !== selectedCategory) return false;
@@ -82,58 +77,16 @@ const Classes = () => {
     return true;
   });
 
-  // Access gate
-  if (!hasAccess) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <div className="px-4 py-6 text-center text-white relative" style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%), hsl(220 85% 55%))" }}>
-          <div className="absolute left-3 top-3 flex items-center gap-2">
-            <button onClick={() => navigate("/")} className="w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors">
-              <ArrowLeft className="w-5 h-5 text-white" />
-            </button>
-            <button onClick={() => navigate("/")} className="text-xs text-white/70 hover:text-white transition-colors">Inicio</button>
-          </div>
-          <h1 className="font-display text-xl font-bold mt-2">Clases</h1>
-          <p className="text-xs text-white/80 mt-1">Repositorio de clases</p>
-        </div>
-        <div className="flex-1 flex items-center justify-center px-6">
-          <div className="max-w-sm w-full space-y-6 text-center">
-            <div className="w-20 h-20 rounded-full bg-muted mx-auto flex items-center justify-center">
-              <Play className="w-10 h-10 text-muted-foreground" />
-            </div>
-            <h2 className="font-display text-xl font-bold">Ingresa tu código</h2>
-            <p className="text-sm text-muted-foreground">Necesitas un código de acceso para ver las clases</p>
-            <div className="flex gap-2">
-              <Input
-                type="text"
-                value={accessCode}
-                onChange={(e) => setAccessCode(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAccessSubmit()}
-                placeholder="Código de acceso"
-                className="text-center"
-                autoFocus
-              />
-              <Button
-                onClick={handleAccessSubmit}
-                style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%))" }}
-                className="text-white"
-              >
-                Entrar
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background pb-16">
       {/* Header */}
       <div className="px-4 py-6 text-center text-white relative" style={{ background: "linear-gradient(135deg, hsl(330 85% 55%), hsl(275 65% 50%), hsl(220 85% 55%))" }}>
-        <button onClick={() => navigate("/")} className="absolute left-4 top-4 text-white/80 hover:text-white">
-          <ArrowLeft className="w-5 h-5" />
-        </button>
+        <div className="absolute left-3 top-3 flex items-center gap-2">
+          <button onClick={() => navigate("/")} className="w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors">
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </button>
+          <button onClick={() => navigate("/")} className="text-xs text-white/70 hover:text-white transition-colors">Inicio</button>
+        </div>
         <h1 className="font-display text-xl font-bold mt-2">Clases</h1>
         <p className="text-xs text-white/80 mt-1">Aprende las mejores técnicas de venta</p>
       </div>
@@ -195,36 +148,74 @@ const Classes = () => {
         ) : (
           <div className="space-y-4">
             {filtered.map((cls) => {
-              const thumb = cls.thumbnail_url || getYouTubeThumbnail(cls.youtube_url);
+              const thumb = cls.thumbnail_url;
+              const isUploading = uploadingId === cls.id;
               return (
-                <a
+                <div
                   key={cls.id}
-                  href={cls.youtube_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="flex gap-4 rounded-xl border border-border overflow-hidden bg-card hover:shadow-lg transition-all"
                 >
+                  {/* Thumbnail area */}
                   <div className="relative w-36 h-24 flex-shrink-0">
-                    {thumb ? (
-                      <img src={thumb} alt={cls.title} className="w-full h-full object-cover" />
-                    ) : (
+                    {isUploading ? (
                       <div className="w-full h-full bg-muted flex items-center justify-center">
-                        <Play className="w-8 h-8 text-muted-foreground" />
+                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                       </div>
+                    ) : thumb ? (
+                      <a href={cls.youtube_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                        <img
+                          src={optimizeImage(thumb, 400)}
+                          alt={cls.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
+                            <Play className="w-5 h-5 text-foreground ml-0.5" />
+                          </div>
+                        </div>
+                      </a>
+                    ) : (
+                      <a href={cls.youtube_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <Play className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                      </a>
                     )}
-                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                      <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
-                        <Play className="w-5 h-5 text-foreground ml-0.5" />
-                      </div>
-                    </div>
+
+                    {/* Admin upload overlay */}
+                    {isAdmin && !isUploading && (
+                      <label className="absolute bottom-1 left-1 cursor-pointer z-10">
+                        <div className="flex items-center gap-1 bg-black/60 text-white text-[10px] font-semibold px-2 py-1 rounded-md hover:bg-black/80 transition-colors">
+                          <Upload className="w-3 h-3" /> Cover
+                        </div>
+                        <input
+                          ref={(el) => { fileInputRefs.current[cls.id] = el; }}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) uploadThumbnail(cls.id, f);
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                    )}
                   </div>
-                  <div className="flex-1 py-2 pr-3 space-y-1">
+
+                  {/* Info */}
+                  <a
+                    href={cls.youtube_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2 pr-3 space-y-1"
+                  >
                     <h3 className="font-display font-bold text-sm text-foreground line-clamp-2">{cls.title}</h3>
                     <div className="flex items-center gap-2">
                       {cls.category && (
                         <Badge className="bg-primary/10 text-primary border-0 text-[10px]">{cls.category}</Badge>
                       )}
-                      {cls.duration_minutes && (
+                      {cls.duration_minutes > 0 && (
                         <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
                           <Clock className="w-3 h-3" /> {cls.duration_minutes} min
                         </span>
@@ -233,8 +224,8 @@ const Classes = () => {
                     {cls.description && (
                       <p className="text-[11px] text-muted-foreground line-clamp-1">{cls.description}</p>
                     )}
-                  </div>
-                </a>
+                  </a>
+                </div>
               );
             })}
           </div>
