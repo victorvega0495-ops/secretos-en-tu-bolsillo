@@ -31,7 +31,7 @@ const CATEGORIES = ["Todas", "Prospección", "Cierre", "Redes Sociales", "Seguim
 const Classes = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [hasAccess, setHasAccess] = useState(false);
+  const [hasAccess, setHasAccess] = useState(true);
   const [accessCode, setAccessCode] = useState("");
   const [classes, setClasses] = useState<ClassRow[]>([]);
   const [loading, setLoading] = useState(true);
