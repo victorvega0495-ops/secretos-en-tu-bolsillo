@@ -13,7 +13,7 @@ const Index = () => {
     {
       id: "rally",
       title: "Contenido WhatsApp",
-      subtitle: "8 semanas de contenido",
+      subtitle: "Videos diarios para vender",
       icon: <MessageCircle className="w-6 h-6 text-green-400" />,
       gradient: "from-green-500 to-emerald-500",
       path: "/rally",
@@ -25,14 +25,6 @@ const Index = () => {
       icon: <BookOpen className="w-6 h-6 text-blue-500" />,
       gradient: "from-blue-500 to-cyan-500",
       path: "/clases",
-    },
-    {
-      id: "exclusivo",
-      title: "Contenido Exclusivo",
-      subtitle: "Videos de 15 segundos listos para compartir",
-      icon: <Star className="w-6 h-6 text-amber-500" />,
-      gradient: "from-amber-500 to-orange-500",
-      path: "/exclusivo",
     },
     {
       id: "premios",
